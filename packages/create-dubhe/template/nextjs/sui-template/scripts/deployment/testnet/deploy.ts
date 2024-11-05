@@ -4,7 +4,7 @@ import { dubheConfig } from '../../../dubhe.config';
 import fs from 'fs/promises';
 import path from 'path';
 
-const TESTNET_FRAMEWORK_ID = '0x3dc2d6239eed38c9798444afbf4bada0998ec98edc365713864405fe64203256';
+const TESTNET_FRAMEWORK_ID = '0x1736475f476c5dec96f33c03c778843f572239d3a887d795eef66d2836484c28';
 
 async function updateDubheMoveToml(projectName: string) {
   try {
