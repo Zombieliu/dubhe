@@ -1,7 +1,7 @@
 import * as fsAsync from 'fs/promises';
 import { mkdirSync, writeFileSync } from 'fs';
 import { exit } from 'process';
-import { dubheConfig } from '../assets/Scripts/dubhe.config';
+import { obeliskConfig } from '../assets/Scripts/dubhe.config';
 import { dirname } from 'path';
 
 export type schema = {
@@ -67,7 +67,7 @@ async function writeOutput(
 async function main() {
 	const path = process.cwd();
 	const network = process.argv[2];
-	const contractPath = `${path}/contracts/${dubheConfig.name}`;
+	const contractPath = `${path}/contracts/${obeliskConfig.name}`;
 	const deployment = await getDeploymentJson(contractPath, network);
 	storeConfig(deployment.network, deployment.packageId, deployment.schemas);
 }

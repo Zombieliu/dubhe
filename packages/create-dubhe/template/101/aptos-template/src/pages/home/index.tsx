@@ -4,7 +4,7 @@ import { useAtom } from 'jotai';
 import { Value } from '../../jotai';
 import { useRouter } from 'next/router';
 import { NETWORK, PACKAGE_ID } from '../../chain/config';
-import { obeliskConfig } from '../../../obelisk.config';
+import { dubheConfig } from '../../../dubhe.config';
 import { PRIVATEKEY } from '../../chain/key';
 
 const Home = () => {
@@ -13,24 +13,24 @@ const Home = () => {
 
   const counter = async () => {
     const metadata = await loadMetadata(NETWORK, PACKAGE_ID);
-    const obelisk = new Dubhe({
+    const dubhe = new Dubhe({
       networkType: NETWORK,
       packageId: PACKAGE_ID,
       metadata: metadata,
       secretKey: PRIVATEKEY,
     });
 
-    const payload = (await obelisk.tx.counter_system.increase(
-      obelisk.getAddress(),
+    const payload = (await dubhe.tx.counter_system.increase(
+      dubhe.getAddress(),
       undefined, // params
       undefined, // typeArguments
       true,
     )) as Types.EntryFunctionPayload;
 
-    await obelisk.signAndSendTxnWithPayload(payload);
+    await dubhe.signAndSendTxnWithPayload(payload);
     setTimeout(async () => {
-      const component_name = Object.keys(obeliskConfig.schemas)[0];
-      const component_value = await obelisk.getEntity(component_name);
+      const component_name = Object.keys(dubheConfig.schemas)[0];
+      const component_value = await dubhe.getEntity(component_name);
       setValue(component_value[0]);
     }, 1000);
   };
@@ -39,14 +39,14 @@ const Home = () => {
     if (router.isReady) {
       const query_counter = async () => {
         const metadata = await loadMetadata(NETWORK, PACKAGE_ID);
-        const obelisk = new Dubhe({
+        const dubhe = new Dubhe({
           networkType: NETWORK,
           packageId: PACKAGE_ID,
           metadata: metadata,
         });
         // counter component name
-        const component_name = Object.keys(obeliskConfig.schemas)[0];
-        const component_value = await obelisk.getEntity(component_name);
+        const component_name = Object.keys(dubheConfig.schemas)[0];
+        const component_value = await dubhe.getEntity(component_name);
         setValue(component_value[0]);
       };
       query_counter();
