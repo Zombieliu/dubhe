@@ -91,12 +91,12 @@ module dubhe::dapps_system {
         dapps.borrow_mut_verified().remove(package_id);
     }
 
-    public fun assert_admin<T: drop>(dapps: &Dapps, ctx: &TxContext) {
+    public fun ensure_admin<T: drop>(dapps: &Dapps, ctx: &TxContext) {
         let package_id = current_package_id<T>();
         assert!(dapps.borrow_admin().get(package_id) == ctx.sender(), 0);
     }
 
-    public fun assert_is_safe_mode<T: drop>(dapps: &Dapps) {
+    public fun ensure_no_safe_mode<T: drop>(dapps: &Dapps) {
         let package_id = current_package_id<T>();
         assert!(!dapps.borrow_safe_mode().get(package_id), 0);
     }
