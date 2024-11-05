@@ -57,10 +57,10 @@ importers:
   packages/aptos-cli:
     dependencies:
       '@0xobelisk/aptos-client':
-        specifier: ^0.0.11
+        specifier: ^0.0.12
         version: link:../aptos-client
       '@0xobelisk/aptos-common':
-        specifier: ^0.0.6
+        specifier: ^0.0.7
         version: link:../aptos-common
       aptos:
         specifier: ^1.20.0
@@ -358,10 +358,10 @@ importers:
   packages/sui-cli:
     dependencies:
       '@0xobelisk/sui-client':
-        specifier: ^0.5.24
+        specifier: ^0.5.25
         version: link:../sui-client
       '@0xobelisk/sui-common':
-        specifier: workspace:*
+        specifier: ^0.5.18
         version: link:../sui-common
       '@mysten/sui':
         specifier: ^1.7.0
@@ -826,6 +826,7 @@ packages:
   /@babel/helper-validator-identifier@7.22.20:
     resolution: {integrity: sha512-Y4OZ+ytlatR8AI+8KZfKuL5urKp7qey08ha31L8b3BwewJAoJamTzyvxPR/5D+KkdJCGPq/+8TukHBlY10FX9A==}
     engines: {node: '>=6.9.0'}
+    requiresBuild: true
     dev: true
 
   /@babel/helper-validator-identifier@7.24.7:
