@@ -20,9 +20,9 @@ async function getDappsObjectId(
 ) {
 	switch (network) {
 		case 'testnet':
-			return '0xa66942c08d9fc318a70ab9d0cfd7e75f1a2dd1ac31aff12fde008d25bfa9604b';
+			return '0x92c78ef688a5cb7f6a9f18e76d1da927e26281c367564ffbe5f886ec06434f08';
 		default:
-			return '0xa66942c08d9fc318a70ab9d0cfd7e75f1a2dd1ac31aff12fde008d25bfa9604b';
+			return '0x92c78ef688a5cb7f6a9f18e76d1da927e26281c367564ffbe5f886ec06434f08';
 	}
 }
 
