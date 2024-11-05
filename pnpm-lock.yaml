@@ -57,7 +57,7 @@ importers:
   packages/aptos-cli:
     dependencies:
       '@0xobelisk/aptos-client':
-        specifier: ^0.0.12
+        specifier: ^0.0.13
         version: link:../aptos-client
       '@0xobelisk/aptos-common':
         specifier: ^0.0.7
