@@ -1,3 +1,3 @@
 var dubhe = require('@0xobelisk/aptos-client');
 
-window.obelisk = dubhe;
+window.dubhe = dubhe;

@@ -46,7 +46,7 @@ const init = async () => {
 			type: 'select',
 			name: 'framework',
 			message: 'Pick your framework.',
-			choices: platform => {
+			choices: (platform: string) => {
 				if (platform === '101') {
 					return [{ title: 'Nextjs', value: 'nextjs' }];
 				} else if (platform === 'web') {
