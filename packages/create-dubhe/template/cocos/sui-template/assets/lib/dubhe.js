@@ -3609,8 +3609,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var _exportNames = {
-  MultiSigClient: true,
   Dubhe: true,
+  MultiSigClient: true,
   SuiAccountManager: true,
   SuiContractFactory: true,
   SuiTx: true,
@@ -3624,7 +3624,7 @@ Object.defineProperty(exports, "BcsType", {
     return _bcs3.BcsType;
   }
 });
-exports.SuiTx = exports.SuiContractFactory = exports.SuiAccountManager = exports.Obelisk = exports.MultiSigClient = void 0;
+exports.SuiTx = exports.SuiContractFactory = exports.SuiAccountManager = exports.MultiSigClient = exports.Dubhe = void 0;
 Object.defineProperty(exports, "bcs", {
   enumerable: true,
   get: function () {
@@ -3738,7 +3738,7 @@ var __privateAdd = (obj, member, value) => {
 
 // src/index.ts
 
-// src/obelisk.ts
+// src/dubhe.ts
 
 // src/libs/suiAccountManager/index.ts
 
@@ -4560,7 +4560,7 @@ function numberToAddressHex(num) {
   return paddedHex;
 }
 
-// src/obelisk.ts
+// src/dubhe.ts
 
 function isUndefined(value) {
   return value === void 0;
@@ -4581,9 +4581,9 @@ function createTx(meta, fn) {
   });
 }
 var _query, _tx, _object, _exec, _read, _bcs;
-var Obelisk = class {
+var Dubhe = class {
   /**
-   * Support the following ways to init the ObeliskClient:
+   * Support the following ways to init the DubheClient:
    * 1. mnemonics
    * 2. secretKey (base64 or hex)
    * If none of them is provided, will generate a random mnemonics with 24 words.
@@ -5199,7 +5199,7 @@ var Obelisk = class {
   //   return bcs.de(type, u8Value);
   // }
 };
-exports.Obelisk = Obelisk;
+exports.Dubhe = Dubhe;
 _query = new WeakMap();
 _tx = new WeakMap();
 _object = new WeakMap();
@@ -7994,7 +7994,6 @@ class SuiHTTPTransport {
         "Client-Sdk-Type": "typescript",
         "Client-Sdk-Version": import_version.PACKAGE_VERSION,
         "Client-Target-Api-Version": import_version.TARGETED_RPC_VERSION,
-        "Client-Request-Method": input.method,
         ...__privateGet(this, _options).rpc?.headers
       },
       body: JSON.stringify({
@@ -15068,8 +15067,8 @@ __export(version_exports, {
   TARGETED_RPC_VERSION: () => TARGETED_RPC_VERSION
 });
 module.exports = __toCommonJS(version_exports);
-const PACKAGE_VERSION = "1.14.0";
-const TARGETED_RPC_VERSION = "1.37.0";
+const PACKAGE_VERSION = "1.14.1";
+const TARGETED_RPC_VERSION = "1.38.0";
 
 
 },{}],93:[function(require,module,exports){
@@ -55688,8 +55687,8 @@ function unwrap(schema) {
 }
 
 },{}],280:[function(require,module,exports){
-var obelisk = require('@0xobelisk/sui-client');
+var dubhe = require('@0xobelisk/sui-client');
 
-window.obelisk = obelisk;
+window.dubhe = dubhe;
 
 },{"@0xobelisk/sui-client":7}]},{},[280]);
