@@ -14,7 +14,7 @@
 	"license": "ISC",
 	"dependencies": {
 		"@0xobelisk/sui-client": "^0.5.25",
-		"@0xobelisk/aptos-client": "^0.0.12",
+		"@0xobelisk/aptos-client": "^0.0.13",
 		"browser-resolve": "^2.0.0",
 		"browser-sync": "^2.29.3"
 	},
