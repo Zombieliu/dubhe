@@ -1,8 +1,8 @@
 import { DubheConfig } from '@0xobelisk/sui-common';
 
 export const dubheConfig = {
-	name: 'poils',
-	description: 'Poils Protocol',
+	name: 'merak',
+	description: 'Merak Protocol',
 	systems: ['assets', 'dex', 'wrapper'],
 	schemas: {
 		assets: {
@@ -81,5 +81,10 @@ export const dubheConfig = {
 				pools: 'StorageMap<u32, Pool>',
 			},
 		},
+		counter: {
+			structure: {
+				value: 'StorageValue<u32>',
+			},
+		}
 	},
 } as DubheConfig;

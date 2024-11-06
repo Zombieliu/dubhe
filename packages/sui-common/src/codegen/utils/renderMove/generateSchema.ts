@@ -231,7 +231,8 @@ export async function generateSchemaStructure(
                     `;
 							})
 							.join('')} 
-                    
+                     
+           
                     public fun register(dapps: &mut Dapps, ctx: &mut TxContext): ${capitalizeAndRemoveUnderscores(
 						schemaName
 					)} {
@@ -264,6 +265,52 @@ export async function generateSchemaStructure(
 								.join(' ')}
                         }
                     }
+                    
+                    
+                 // ======================================== View Functions ========================================
+                    ${Object.entries(schema.structure)
+			.map(([key, value]) => {
+				// @ts-ignore
+				let all_types = value.match(/<(.+)>/)[1].split(',').map(type => type.trim())
+				let para_key: string[] = []
+				let para_value = ""
+				let borrow_key = ""
+				let extra_code = ""
+				if (value.includes('StorageValue')) {
+					para_key = []
+					para_value = `${all_types[0]}`
+					borrow_key = 'try_get()'
+				} else if (value.includes('StorageMap')) {
+					para_key = [`key: ${all_types[0]}`]
+					para_value = `${all_types[1]}`
+					borrow_key = 'try_get(key)'
+					extra_code = `public fun get_${key}_keys(self: &${capitalizeAndRemoveUnderscores(schemaName)}) : vector<${all_types[0]}> {
+									self.${key}.keys()
+								}
+							
+							public fun get_${key}_values(self: &${capitalizeAndRemoveUnderscores(schemaName)}) : vector<${all_types[1]}> {
+									self.${key}.values()
+								}`
+				} else if (value.includes('StorageDoubleMap')) {
+					para_key = [`key1: ${all_types[0]}`, `key2: ${all_types[1]}`]
+					para_value = `${all_types[2]}`
+					borrow_key = 'try_get(key1, key2)'
+					extra_code = `public fun get_${key}_keys(self: &${capitalizeAndRemoveUnderscores(schemaName)}) : (vector<${all_types[0]}>, vector<${all_types[1]}>) {
+									self.${key}.keys()
+								}
+							
+							public fun get_${key}_values(self: &${capitalizeAndRemoveUnderscores(schemaName)}) : vector<${all_types[2]}> {
+									self.${key}.values()
+								}`
+				}
+				return `public fun get_${key}(self: &${capitalizeAndRemoveUnderscores(schemaName)}, ${para_key}) : Option<${para_value}> {
+									self.${key}.${borrow_key}
+								}
+								` + extra_code;
+			})
+			.join('')} 
+             // =========================================================================================================
+                    
                
            }`;
 		await formatAndWriteMove(
