@@ -33,10 +33,7 @@ async function init() {
 
   let tx = new Transaction();
   let params: TransactionArgument[] = [];
-  let query1 = (await dubhe.query.funt.get_u8(
-    tx,
-    params
-  )) as DevInspectResults;
+  let query1 = (await dubhe.query.funt.get_u8(tx, params)) as DevInspectResults;
   console.log(JSON.stringify(query1.results![0]));
   let formatData1 = dubhe.view(query1);
   console.log(formatData1);
@@ -142,9 +139,12 @@ async function init() {
 
   let tx12 = new Transaction();
   let params12: TransactionArgument[] = [];
-  let formatData12 = dubhe.view(
-    (await dubhe.query.funt.get_obj(tx12, params12)) as DevInspectResults
-  );
+  let query12 = (await dubhe.query.funt.get_obj(
+    tx12,
+    params12
+  )) as DevInspectResults;
+  console.log(JSON.stringify(query12.results![0]));
+  let formatData12 = dubhe.view(query12);
   console.log(formatData12);
   // let txb = new TransactionBlock();
 

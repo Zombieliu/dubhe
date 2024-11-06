@@ -124,6 +124,7 @@ export type MoveStructValueType = {
   }[];
 };
 export type MoveStructType = {
+  objectId: string;
   objectType: MoveStructValueType;
   objectName: string;
 };

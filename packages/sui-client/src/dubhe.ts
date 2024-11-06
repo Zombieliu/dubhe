@@ -33,7 +33,6 @@ import {
   MapMoudleFuncTx,
   DubheParams,
   SuiTxArg,
-  // SuiTxArgument,
   SuiObjectArg,
   SuiVecTxArg,
 } from './types';
@@ -41,19 +40,21 @@ import { normalizeHexAddress, numberToAddressHex } from './utils';
 import { bcs, fromHEX, toHEX } from '@mysten/bcs';
 import { TypeTagSerializer } from '@mysten/sui/bcs';
 
+// Check if a value is undefined
 export function isUndefined(value?: unknown): value is undefined {
   return value === undefined;
 }
 
+// Add metadata to a function
 export function withMeta<T extends { meta: SuiMoveMoudleFuncType }>(
   meta: SuiMoveMoudleFuncType,
   creator: Omit<T, 'meta'>
 ): T {
   (creator as T).meta = meta;
-
   return creator as T;
 }
 
+// Create a query function with metadata
 function createQuery(
   meta: SuiMoveMoudleFuncType,
   fn: (
@@ -77,6 +78,7 @@ function createQuery(
   );
 }
 
+// Create a transaction function with metadata
 function createTx(
   meta: SuiMoveMoudleFuncType,
   fn: (
@@ -94,7 +96,6 @@ function createTx(
       typeArguments?: string[],
       isRaw?: boolean
     ): Promise<SuiTransactionBlockResponse | TransactionResult> => {
-      // const result = await fn(tx, params, typeArguments, isRaw);
       return await fn(tx, params, typeArguments, isRaw);
     }
   );
@@ -115,7 +116,6 @@ export class Dubhe {
   readonly #tx: MapMoudleFuncTx = {};
   readonly #object: MapObjectStruct = {
     address: bcs.bytes(32).transform({
-      // To change the input type, you need to provide a type definition for the input
       input: (val: string) => fromHEX(val),
       output: (val) => toHEX(val),
     }),
@@ -130,7 +130,6 @@ export class Dubhe {
     '0x1::string::String': bcs.string(),
     '0x1::option::Option<address>': bcs.option(
       bcs.bytes(32).transform({
-        // To change the input type, you need to provide a type definition for the input
         input: (val: string) => fromHEX(val),
         output: (val) => toHEX(val),
       })
@@ -144,7 +143,6 @@ export class Dubhe {
     '0x1::option::Option<bool>': bcs.option(bcs.bool()),
     'vector<address>': bcs.vector(
       bcs.bytes(32).transform({
-        // To change the input type, you need to provide a type definition for the input
         input: (val: string) => fromHEX(val),
         output: (val) => toHEX(val),
       })
@@ -159,16 +157,8 @@ export class Dubhe {
   };
 
   /**
-   * Support the following ways to init the DubheClient:
-   * 1. mnemonics
-   * 2. secretKey (base64 or hex)
-   * If none of them is provided, will generate a random mnemonics with 24 words.
-   *
-   * @param mnemonics, 12 or 24 mnemonics words, separated by space
-   * @param secretKey, base64 or hex string or bech32, when mnemonics is provided, secretKey will be ignored
-   * @param networkType, 'testnet' | 'mainnet' | 'devnet' | 'localnet', default is 'devnet'
-   * @param fullnodeUrl, the fullnode url, default is the preconfig fullnode url for the given network type
-   * @param packageId
+   * Initialize the Dubhe client
+   * @param {DubheParams} params - Configuration parameters
    */
   constructor({
     mnemonics,
@@ -178,9 +168,9 @@ export class Dubhe {
     packageId,
     metadata,
   }: DubheParams = {}) {
-    // Init the account manager
+    // Initialize account manager
     this.accountManager = new SuiAccountManager({ mnemonics, secretKey });
-    // Init the rpc provider
+    // Initialize RPC provider
     fullnodeUrls = fullnodeUrls || [getFullnodeUrl(networkType ?? 'mainnet')];
     this.suiInteractor = new SuiInteractor(fullnodeUrls, networkType);
 
@@ -200,18 +190,16 @@ export class Dubhe {
             const objMoudleId = `${packageId}::${moduleName}`;
 
             Object.entries(data.structs).forEach(([objectName, objectType]) => {
-              const objId = `${objMoudleId}::${objectName}`;
+              const objectId = `${objMoudleId}::${objectName}`;
               const bcsmeta: MoveStructType = {
+                objectId,
                 objectName,
                 objectType,
               };
-              // if (isUndefined(this.#object[objId])) {
               let bcsObj = this.#bcs(bcsmeta);
               if (bcsObj.loopFlag === true) {
                 loopFlag = bcsObj.loopFlag;
               }
-              this.#object[objId] = bcsObj.bcs;
-              // }
             });
 
             Object.entries(data.exposedFunctions).forEach(
@@ -255,6 +243,7 @@ export class Dubhe {
     });
   }
 
+  // Getters for query, tx, and object
   public get query(): MapMoudleFuncQuery {
     return this.#query;
   }
@@ -267,6 +256,7 @@ export class Dubhe {
     return this.#object;
   }
 
+  // Execute a transaction
   #exec = async (
     meta: SuiMoveMoudleFuncType,
     tx: Transaction,
@@ -290,6 +280,7 @@ export class Dubhe {
     return await this.signAndSendTxn(tx);
   };
 
+  // Read data from the blockchain
   #read = async (
     meta: SuiMoveMoudleFuncType,
     tx: Transaction,
@@ -314,211 +305,114 @@ export class Dubhe {
     return await this.inspectTxn(tx);
   };
 
+  // Create BCS (Binary Canonical Serialization) for a struct
   #bcs = (bcsmeta: MoveStructType) => {
     let loopFlag = false;
     const bcsJson: Record<string, BcsType<any, any>> = {};
+    if (
+      bcsmeta.objectId ===
+      '0x9233ea7cd6abd1a2ea5e7a5a54d9eab96a8c704a682e6981413edcfdd3a6b389::assets_account::Account'
+    ) {
+      console.log('bcsmeta:', JSON.stringify(bcsmeta));
+    }
+    const registerType = (typeId: string, bcsType: BcsType<any, any>) => {
+      this.#object[typeId] = bcsType;
+      this.#object[`vector<${typeId}>`] = bcs.vector(bcsType);
+      this.#object[`0x1::option::Option<${typeId}>`] = bcs.option(bcsType);
+    };
+
+    const handleStructType = (structType: any) => {
+      if (
+        structType.address === '0x1' &&
+        structType.module === 'option' &&
+        structType.name === 'Option'
+      ) {
+        const innerType = structType.typeArguments[0];
+        if (typeof innerType === 'object' && 'Struct' in innerType) {
+          const customType = `${innerType.Struct.address}::${innerType.Struct.module}::${innerType.Struct.name}`;
+          return this.#object[`0x1::option::Option<${customType}>`];
+        }
+      }
+
+      if (typeof structType === 'object' && 'Vector' in structType) {
+        const innerType = structType.Vector;
+        if (typeof innerType === 'object' && 'Struct' in innerType) {
+          const customType = `${innerType.Struct.address}::${innerType.Struct.module}::${innerType.Struct.name}`;
+          return this.#object[`vector<${customType}>`];
+        }
+      }
+
+      if (typeof structType === 'object' && 'Struct' in structType) {
+        const customType = `${structType.Struct.address}::${structType.Struct.module}::${structType.Struct.name}`;
+        if (!this.#object[customType]) {
+          loopFlag = true;
+          return undefined;
+        }
+        return this.#object[customType];
+      }
+
+      return undefined;
+    };
+
     Object.entries(bcsmeta.objectType.fields).forEach(([index, type]) => {
       const objName = type.name;
       const objType: SuiMoveNormalizedType = type.type;
-      switch (typeof objType) {
-        case 'object':
-          for (const [key, value] of Object.entries(objType)) {
-            switch (key) {
-              case 'Struct':
-                const structType = value as {
-                  address: string;
-                  module: string;
-                  name: string;
-                  typeArguments: SuiMoveNormalizedType[];
-                };
-                if (
-                  structType.address === '0x1' &&
-                  structType.module === 'ascii' &&
-                  structType.name === 'String'
-                ) {
-                  bcsJson[objName] = bcs.string();
-                  return;
-                } else if (
-                  structType.address === '0x2' &&
-                  structType.module === 'object' &&
-                  structType.name === 'UID'
-                ) {
-                  bcsJson[objName] = bcs.fixedArray(32, bcs.u8()).transform({
-                    input: (id: string) => fromHEX(id),
-                    output: (id) => toHEX(Uint8Array.from(id)),
-                  });
-                  return;
-                } else if (
-                  structType.address === '0x2' &&
-                  structType.module === 'object' &&
-                  structType.name === 'ID'
-                ) {
-                  bcsJson[objName] = bcs.fixedArray(32, bcs.u8()).transform({
-                    input: (id: string) => fromHEX(id),
-                    output: (id) => toHEX(Uint8Array.from(id)),
-                  });
-                  return;
-                } else if (
-                  structType.address === '0x2' &&
-                  structType.module === 'bag' &&
-                  structType.name === 'Bag'
-                ) {
-                  bcsJson[objName] = bcs.fixedArray(32, bcs.u8()).transform({
-                    input: (id: string) => fromHEX(id),
-                    output: (id) => toHEX(Uint8Array.from(id)),
-                  });
-                  return;
-                } else if (
-                  structType.address === '0x1' &&
-                  structType.module === 'option' &&
-                  structType.name === 'Option'
-                ) {
-                  switch (structType.typeArguments[0]) {
-                    case 'U8':
-                      bcsJson[objName] = bcs.option(bcs.u8());
-                      return;
-                    case 'U16':
-                      bcsJson[objName] = bcs.option(bcs.u16());
-                      return;
-                    case 'U32':
-                      bcsJson[objName] = bcs.option(bcs.u32());
-                      return;
-                    case 'U64':
-                      bcsJson[objName] = bcs.option(bcs.u64());
-                      return;
-                    case 'U128':
-                      bcsJson[objName] = bcs.option(bcs.u128());
-                      return;
-                    case 'U256':
-                      bcsJson[objName] = bcs.option(bcs.u256());
-                      return;
-                    case 'Bool':
-                      bcsJson[objName] = bcs.option(bcs.bool());
-                      return;
-                    case 'Address':
-                      bcsJson[objName] = bcs.option(
-                        bcs.bytes(32).transform({
-                          // To change the input type, you need to provide a type definition for the input
-                          input: (val: string) => fromHEX(val),
-                          output: (val) => toHEX(val),
-                        })
-                      );
-                      return;
-                    default:
-                    // throw new Error('Unsupported type');
-                  }
-                } else {
-                  if (
-                    this.object[
-                      `${structType.address}::${structType.module}::${structType.name}`
-                    ] === undefined
-                  ) {
-                    loopFlag = true;
-                  } else {
-                    bcsJson[objName] =
-                      this.object[
-                        `${structType.address}::${structType.module}::${structType.name}`
-                      ];
-                    return;
-                  }
-                }
-                return;
-              case 'Vector':
-                switch (value) {
-                  case 'U8':
-                    bcsJson[objName] = bcs.vector(bcs.u8());
-                    return;
-                  case 'U16':
-                    bcsJson[objName] = bcs.vector(bcs.u16());
-                    return;
-                  case 'U32':
-                    bcsJson[objName] = bcs.vector(bcs.u32());
-                    return;
-                  case 'U64':
-                    bcsJson[objName] = bcs.vector(bcs.u64());
-                    return;
-                  case 'U128':
-                    bcsJson[objName] = bcs.vector(bcs.u128());
-                    return;
-                  case 'U256':
-                    bcsJson[objName] = bcs.vector(bcs.u256());
-                    return;
-                  case 'Bool':
-                    bcsJson[objName] = bcs.vector(bcs.bool());
-                    return;
-                  case 'Address':
-                    bcsJson[objName] = bcs.vector(
-                      bcs.bytes(32).transform({
-                        // To change the input type, you need to provide a type definition for the input
-                        input: (val: string) => fromHEX(val),
-                        output: (val) => toHEX(val),
-                      })
-                    );
-                    return;
-                  default:
-                  // throw new Error('Unsupported type');
-                }
 
-              case 'TypeParameter':
-                bcsJson[objName] = bcs.u128();
-                return;
-              // case 'Reference':
+      if (typeof objType === 'object') {
+        const bcsType = handleStructType(objType);
 
-              // case 'MutableReference':
-
-              default:
-                throw new Error('Unsupported type');
-            }
-          }
-          return;
-        case 'string':
-          switch (objType) {
-            case 'U8':
-              bcsJson[objName] = bcs.u8();
-              return;
-            case 'U16':
-              bcsJson[objName] = bcs.u16();
-              return;
-            case 'U32':
-              bcsJson[objName] = bcs.u32();
-              return;
-            case 'U64':
-              bcsJson[objName] = bcs.u64();
-              return;
-            case 'U128':
-              bcsJson[objName] = bcs.u128();
-              return;
-            case 'U256':
-              bcsJson[objName] = bcs.u256();
-              return;
-            case 'Bool':
-              bcsJson[objName] = bcs.bool();
-              return;
-            case 'Address':
-              bcsJson[objName] = bcs.bytes(32).transform({
-                // To change the input type, you need to provide a type definition for the input
-                input: (val: string) => fromHEX(val),
-                output: (val) => toHEX(val),
-              });
-              return;
-            default:
-              return;
-          }
-        default:
-          throw new Error('Unsupported type');
+        if (bcsType) {
+          bcsJson[objName] = bcsType;
+        }
+      } else if (typeof objType === 'string') {
+        switch (objType) {
+          case 'U8':
+            bcsJson[objName] = bcs.u8();
+            break;
+          case 'U16':
+            bcsJson[objName] = bcs.u16();
+            break;
+          case 'U32':
+            bcsJson[objName] = bcs.u32();
+            break;
+          case 'U64':
+            bcsJson[objName] = bcs.u64();
+            break;
+          case 'U128':
+            bcsJson[objName] = bcs.u128();
+            break;
+          case 'U256':
+            bcsJson[objName] = bcs.u256();
+            break;
+          case 'Bool':
+            bcsJson[objName] = bcs.bool();
+            break;
+          case 'Address':
+            bcsJson[objName] = bcs.bytes(32).transform({
+              input: (val: string) => fromHEX(val),
+              output: (val) => toHEX(val),
+            });
+            break;
+        }
       }
     });
 
+    const structBcs = bcs.struct(bcsmeta.objectName, bcsJson);
+    const structTypeId = bcsmeta.objectId;
+    // console.log('Registering type:', structTypeId);
+
+    registerType(structTypeId, structBcs);
+
     return {
-      bcs: bcs.struct(bcsmeta.objectName, bcsJson),
+      bcs: structBcs,
       loopFlag,
     };
   };
 
+  // Parse and view the result of a dry run
   view(dryResult: DevInspectResults) {
     let returnValues = [];
 
-    // "success" | "failure";
     if (dryResult.effects.status.status === 'success') {
       const resultList = dryResult.results![0].returnValues!;
 
@@ -536,49 +430,69 @@ export class Dubhe {
   }
 
   /**
-   * if derivePathParams is not provided or mnemonics is empty, it will return the keypair.
-   * else:
-   * it will generate signer from the mnemonic with the given derivePathParams.
-   * @param derivePathParams, such as { accountIndex: 2, isExternal: false, addressIndex: 10 }, comply with the BIP44 standard
+   * Get the keypair for the given derive path params
+   * @param derivePathParams - Derive path parameters
+   * @returns The keypair
    */
   getKeypair(derivePathParams?: DerivePathParams) {
     return this.accountManager.getKeyPair(derivePathParams);
   }
 
   /**
-   * @description Switch the current account with the given derivePathParams
-   * @param derivePathParams, such as { accountIndex: 2, isExternal: false, addressIndex: 10 }, comply with the BIP44 standard
+   * Switch the current account with the given derive path params
+   * @param derivePathParams - Derive path parameters
    */
   switchAccount(derivePathParams: DerivePathParams) {
     this.accountManager.switchAccount(derivePathParams);
   }
 
   /**
-   * @description Get the address of the account for the given derivePathParams
-   * @param derivePathParams, such as { accountIndex: 2, isExternal: false, addressIndex: 10 }, comply with the BIP44 standard
+   * Get the address for the given derive path params
+   * @param derivePathParams - Derive path parameters
+   * @returns The address
    */
   getAddress(derivePathParams?: DerivePathParams) {
     return this.accountManager.getAddress(derivePathParams);
   }
 
+  /**
+   * Get the current address
+   * @returns The current address
+   */
   currentAddress() {
     return this.accountManager.currentAddress;
   }
 
+  /**
+   * Get the package ID
+   * @returns The package ID
+   */
   getPackageId() {
     return this.contractFactory.packageId;
   }
 
+  /**
+   * Get the metadata
+   * @returns The metadata
+   */
   getMetadata() {
     return this.contractFactory.metadata;
   }
 
+  /**
+   * Get the current network
+   * @returns The current network
+   */
   getNetwork() {
     return this.suiInteractor.network;
   }
+
   /**
    * Request some SUI from faucet
-   * @Returns {Promise<boolean>}, true if the request is successful, false otherwise.
+   * @param address - The address to receive SUI
+   * @param network - The network type
+   * @param derivePathParams - Derive path parameters
+   * @returns {Promise<boolean>} True if the request is successful, false otherwise
    */
   async requestFaucet(
     address?: string,
@@ -593,15 +507,27 @@ export class Dubhe {
         | FaucetNetworkType
         | 'devnet' as FaucetNetworkType;
     }
-    // const addr = this.accountManager.getAddress(derivePathParams);
     return this.suiInteractor.requestFaucet(address, network);
   }
 
+  /**
+   * Get the balance for the current account
+   * @param coinType - The coin type
+   * @param derivePathParams - Derive path parameters
+   * @returns The balance
+   */
   async getBalance(coinType?: string, derivePathParams?: DerivePathParams) {
     const owner = this.accountManager.getAddress(derivePathParams);
     return this.suiInteractor.currentClient.getBalance({ owner, coinType });
   }
 
+  /**
+   * Get the balance for a specific account
+   * @param accountAddress - The account address
+   * @param coinType - The coin type
+   * @param derivePathParams - Derive path parameters
+   * @returns The balance
+   */
   async balanceOf(
     accountAddress?: string,
     coinType?: string,
@@ -614,18 +540,38 @@ export class Dubhe {
     return this.suiInteractor.currentClient.getBalance({ owner, coinType });
   }
 
+  /**
+   * Get the current client
+   * @returns The current client
+   */
   client() {
     return this.suiInteractor.currentClient;
   }
 
+  /**
+   * Get an object by its ID
+   * @param objectId - The object ID
+   * @returns The object
+   */
   async getObject(objectId: string) {
     return this.suiInteractor.getObject(objectId);
   }
 
+  /**
+   * Get multiple objects by their IDs
+   * @param objectIds - The object IDs
+   * @returns The objects
+   */
   async getObjects(objectIds: string[]) {
     return this.suiInteractor.getObjects(objectIds);
   }
 
+  /**
+   * Sign a transaction
+   * @param tx - The transaction to sign
+   * @param derivePathParams - Derive path parameters
+   * @returns The signed transaction
+   */
   async signTxn(
     tx: Uint8Array | Transaction | SuiTx,
     derivePathParams?: DerivePathParams
@@ -642,6 +588,12 @@ export class Dubhe {
     return await keyPair.signTransaction(txBytes);
   }
 
+  /**
+   * Sign and send a transaction
+   * @param tx - The transaction to sign and send
+   * @param derivePathParams - Derive path parameters
+   * @returns The transaction response
+   */
   async signAndSendTxn(
     tx: Uint8Array | Transaction | SuiTx,
     derivePathParams?: DerivePathParams
@@ -650,6 +602,12 @@ export class Dubhe {
     return this.suiInteractor.sendTx(bytes, signature);
   }
 
+  /**
+   * Send a transaction
+   * @param transactionBlock - The transaction block
+   * @param signature - The signature
+   * @returns The transaction response
+   */
   async sendTxn(
     transactionBlock: Uint8Array | string,
     signature: string | string[]
@@ -658,10 +616,11 @@ export class Dubhe {
   }
 
   /**
-   * Transfer the given amount of SUI to the recipient
-   * @param recipient
-   * @param amount
-   * @param derivePathParams
+   * Transfer SUI to a recipient
+   * @param recipient - The recipient address
+   * @param amount - The amount to transfer
+   * @param derivePathParams - Derive path parameters
+   * @returns The transaction response
    */
   async transferSui(
     recipient: string,
@@ -674,10 +633,11 @@ export class Dubhe {
   }
 
   /**
-   * Transfer to mutliple recipients
-   * @param recipients the recipients addresses
-   * @param amounts the amounts of SUI to transfer to each recipient, the length of amounts should be the same as the length of recipients
-   * @param derivePathParams
+   * Transfer SUI to multiple recipients
+   * @param recipients - The recipient addresses
+   * @param amounts - The amounts to transfer to each recipient
+   * @param derivePathParams - Derive path parameters
+   * @returns The transaction response
    */
   async transferSuiToMany(
     recipients: string[],
@@ -690,11 +650,12 @@ export class Dubhe {
   }
 
   /**
-   * Transfer the given amounts of coin to multiple recipients
-   * @param recipients the list of recipient address
-   * @param amounts the amounts to transfer for each recipient
-   * @param coinType any custom coin type but not SUI
-   * @param derivePathParams the derive path params for the current signer
+   * Transfer coins to multiple recipients
+   * @param recipients - The recipient addresses
+   * @param amounts - The amounts to transfer to each recipient
+   * @param coinType - The coin type
+   * @param derivePathParams - Derive path parameters
+   * @returns The transaction response
    */
   async transferCoinToMany(
     recipients: string[],
@@ -719,6 +680,14 @@ export class Dubhe {
     return this.signAndSendTxn(tx, derivePathParams);
   }
 
+  /**
+   * Transfer coins to a single recipient
+   * @param recipient - The recipient address
+   * @param amount - The amount to transfer
+   * @param coinType - The coin type
+   * @param derivePathParams - Derive path parameters
+   * @returns The transaction response
+   */
   async transferCoin(
     recipient: string,
     amount: number,
@@ -733,6 +702,13 @@ export class Dubhe {
     );
   }
 
+  /**
+   * Transfer objects to a recipient
+   * @param objects - The objects to transfer
+   * @param recipient - The recipient address
+   * @param derivePathParams - Derive path parameters
+   * @returns The transaction response
+   */
   async transferObjects(
     objects: SuiObjectArg[],
     recipient: string,
@@ -743,6 +719,11 @@ export class Dubhe {
     return this.signAndSendTxn(tx, derivePathParams);
   }
 
+  /**
+   * Execute a Move call
+   * @param callParams - The call parameters
+   * @returns The transaction response
+   */
   async moveCall(callParams: {
     target: string;
     arguments?: (SuiTxArg | SuiVecTxArg)[];
@@ -761,10 +742,11 @@ export class Dubhe {
   }
 
   /**
-   * Select coins with the given amount and coin type, the total amount is greater than or equal to the given amount
-   * @param amount
-   * @param coinType
-   * @param owner
+   * Select coins with a given amount and coin type
+   * @param amount - The amount
+   * @param coinType - The coin type
+   * @param owner - The owner address
+   * @returns The selected coin object IDs
    */
   async selectCoinsWithAmount(
     amount: number,
@@ -776,6 +758,12 @@ export class Dubhe {
     return coins.map((c) => c.objectId);
   }
 
+  /**
+   * Select objects with a given type
+   * @param objectType - The object type
+   * @param owner - The owner address
+   * @returns The selected object IDs
+   */
   async selectObjectsWithType(objectType: string, owner?: string) {
     owner = owner || this.accountManager.currentAddress;
     const objects = await this.suiInteractor.selectObjects(owner, objectType);
@@ -783,10 +771,11 @@ export class Dubhe {
   }
 
   /**
-   * stake the given amount of SUI to the validator
-   * @param amount the amount of SUI to stake
-   * @param validatorAddr the validator address
-   * @param derivePathParams the derive path params for the current signer
+   * Stake SUI to a validator
+   * @param amount - The amount to stake
+   * @param validatorAddr - The validator address
+   * @param derivePathParams - Derive path parameters
+   * @returns The transaction response
    */
   async stakeSui(
     amount: number,
@@ -799,11 +788,10 @@ export class Dubhe {
   }
 
   /**
-   * Execute the transaction with on-chain data but without really submitting. Useful for querying the effects of a transaction.
-   * Since the transaction is not submitted, its gas cost is not charged.
-   * @param tx the transaction to execute
-   * @param derivePathParams the derive path params
-   * @returns the effects and events of the transaction, such as object changes, gas cost, event emitted.
+   * Inspect a transaction without submitting it
+   * @param tx - The transaction to inspect
+   * @param derivePathParams - Derive path parameters
+   * @returns The inspection results
    */
   async inspectTxn(
     tx: Uint8Array | Transaction | SuiTx,
@@ -816,10 +804,20 @@ export class Dubhe {
     });
   }
 
+  /**
+   * Get a world object
+   * @param worldObjectId - The world object ID
+   * @returns The world object
+   */
   async getWorld(worldObjectId: string) {
     return this.suiInteractor.getObject(worldObjectId);
   }
 
+  /**
+   * List schema names for a world
+   * @param worldId - The world ID
+   * @returns The list of schema names
+   */
   async listSchemaNames(worldId: string) {
     const worldObject = await this.getObject(worldId);
     const newObjectContent = worldObject.content;
@@ -832,6 +830,13 @@ export class Dubhe {
     }
   }
 
+  /**
+   * Get an entity from a world
+   * @param worldId - The world ID
+   * @param schemaName - The schema name
+   * @param entityId - The entity ID (optional)
+   * @returns The entity data
+   */
   async getEntity(
     worldId: string,
     schemaName: string,
@@ -849,10 +854,16 @@ export class Dubhe {
       tx,
       params
     )) as DevInspectResults;
-    // "success" | "failure";
     return this.view(dryResult);
   }
 
+  /**
+   * Check if an entity exists in a world
+   * @param worldId - The world ID
+   * @param schemaName - The schema name
+   * @param entityId - The entity ID (optional)
+   * @returns True if the entity exists, false otherwise
+   */
   async containEntity(
     worldId: string,
     schemaName: string,
