@@ -521,7 +521,6 @@ export class Dubhe {
   view(dryResult: DevInspectResults) {
     let returnValues = [];
 
-    // "success" | "failure";
     if (dryResult.effects.status.status === 'success') {
       const resultList = dryResult.results![0].returnValues!;
 
@@ -536,11 +535,18 @@ export class Dubhe {
             '\n\x1b[41m\x1b[37m ERROR \x1b[0m \x1b[31mUnsupported Type\x1b[0m'
           );
           console.log('\x1b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m');
-          console.log(`\x1b[90m•\x1b[0m Type: \x1b[33m"${baseType}"\x1b[0m`);
-          console.log('\x1b[34m\n✨ Available Types:\x1b[0m');
+          console.log(`\x1b[95m•\x1b[0m Type: \x1b[33m"${baseType}"\x1b[0m`);
+          console.log('\x1b[95m\n✨ Available Types:\x1b[0m');
           Object.keys(this.#object).forEach((type) => {
             console.log(`  \x1b[36m◆\x1b[0m ${type}`);
           });
+          console.log('\n\x1b[34m💡 How to Add Custom Type:\x1b[0m');
+          console.log(
+            `  You can add custom type by extending the #object map in your code:`
+          );
+          console.log(
+            `  \x1b[32mdubhe.object["${baseType}"] = bcs.struct("YourTypeName", {\n    field1: bcs.string(),\n    field2: bcs.u64(),\n    // ... other fields\n  });\x1b[0m`
+          );
           console.log(
             '\x1b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m\n'
           );
