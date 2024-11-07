@@ -5,6 +5,8 @@ import {
   loadMetadata,
   Transaction,
   DevInspectResults,
+  MoveStructType,
+  MoveStructValueType,
 } from '../src/index';
 import * as process from 'process';
 import dotenv from 'dotenv';
@@ -207,5 +209,4 @@ async function init() {
     console.log(e);
   }
 }
-// 0x1::option::Option<0x9233ea7cd6abd1a2ea5e7a5a54d9eab96a8c704a682e6981413edcfdd3a6b389::assets_metadata::Metadata>
 init();
