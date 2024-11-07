@@ -530,7 +530,24 @@ export class Dubhe {
         let baseType = res[1];
 
         const value = Uint8Array.from(baseValue);
-        returnValues.push(this.object[baseType].parse(value));
+
+        if (!this.#object[baseType]) {
+          console.log(
+            '\n\x1b[41m\x1b[37m ERROR \x1b[0m \x1b[31mUnsupported Type\x1b[0m'
+          );
+          console.log('\x1b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m');
+          console.log(`\x1b[90m•\x1b[0m Type: \x1b[33m"${baseType}"\x1b[0m`);
+          console.log('\x1b[34m\n✨ Available Types:\x1b[0m');
+          Object.keys(this.#object).forEach((type) => {
+            console.log(`  \x1b[36m◆\x1b[0m ${type}`);
+          });
+          console.log(
+            '\x1b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m\n'
+          );
+          throw new Error(`Unsupported type: ${baseType}`);
+        }
+
+        returnValues.push(this.#object[baseType].parse(value));
       }
       return returnValues;
     } else {
@@ -817,64 +834,6 @@ export class Dubhe {
       transactionBlock: txBlock,
       sender: this.getAddress(derivePathParams),
     });
-  }
-
-  async getWorld(worldObjectId: string) {
-    return this.suiInteractor.getObject(worldObjectId);
-  }
-
-  async listSchemaNames(worldId: string) {
-    const worldObject = await this.getObject(worldId);
-    const newObjectContent = worldObject.content;
-    if (newObjectContent != null) {
-      const objectContent = newObjectContent as DubheObjectContent;
-      const objectFields = objectContent.fields as Record<string, any>;
-      return objectFields['schema_names'];
-    } else {
-      return [];
-    }
-  }
-
-  async getEntity(
-    worldId: string,
-    schemaName: string,
-    entityId?: string
-  ): Promise<any[] | undefined> {
-    const schemaModuleName = `${schemaName}_schema`;
-    const tx = new Transaction();
-    const params = [tx.object(worldId)] as TransactionArgument[];
-
-    if (entityId !== undefined) {
-      params.push(tx.object(entityId));
-    }
-
-    const dryResult = (await this.query[schemaModuleName].get(
-      tx,
-      params
-    )) as DevInspectResults;
-    // "success" | "failure";
-    return this.view(dryResult);
-  }
-
-  async containEntity(
-    worldId: string,
-    schemaName: string,
-    entityId?: string
-  ): Promise<boolean | undefined> {
-    const schemaModuleName = `${schemaName}_schema`;
-    const tx = new Transaction();
-    const params = [tx.object(worldId)] as TransactionArgument[];
-
-    if (entityId !== undefined) {
-      params.push(tx.object(entityId));
-    }
-
-    const dryResult = (await this.query[schemaModuleName].contains(
-      tx,
-      params
-    )) as DevInspectResults;
-
-    return this.view(dryResult) as boolean | undefined;
   }
 
   async getOwnedObjects(owner: string, cursor?: string, limit?: number) {
