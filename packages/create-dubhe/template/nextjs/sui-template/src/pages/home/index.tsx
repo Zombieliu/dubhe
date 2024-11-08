@@ -33,7 +33,7 @@ const Home: React.FC = () => {
       });
       const tx = new Transaction();
       console.log('Counter Object ID:', Counter_Object_Id);
-      const queryValue = (await dubhe.query.counter_system.get(tx, [
+      const queryValue = (await dubhe.query.counter_schema.get_value(tx, [
         tx.object(Counter_Object_Id),
       ])) as DevInspectResults;
       console.log('Counter value:', dubhe.view(queryValue)[0]);

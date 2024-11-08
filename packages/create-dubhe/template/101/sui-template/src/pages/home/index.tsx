@@ -20,7 +20,7 @@ const Home = () => {
     });
     const tx = new Transaction();
     console.log('counterObjectId:', Counter_Object_Id);
-    const query_value = (await dubhe.query.counter_system.get(tx, [
+    const query_value = (await dubhe.query.counter_schema.get_value(tx, [
       tx.object(Counter_Object_Id),
     ])) as DevInspectResults;
     console.log(dubhe.view(query_value)[0]);

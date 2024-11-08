@@ -4849,8 +4849,9 @@ var Dubhe = class {
           const moduleName = data.name;
           const objMoudleId = `${packageId}::${moduleName}`;
           Object.entries(data.structs).forEach(([objectName, objectType]) => {
-            const objId = `${objMoudleId}::${objectName}`;
+            const objectId = `${objMoudleId}::${objectName}`;
             const bcsmeta = {
+              objectId,
               objectName,
               objectType
             };
@@ -4858,7 +4859,9 @@ var Dubhe = class {
             if (bcsObj.loopFlag === true) {
               loopFlag = bcsObj.loopFlag;
             }
-            __privateGet(this, _object)[objId] = bcsObj.bcs;
+            __privateGet(this, _object)[objectId] = bcsObj.bcs;
+            __privateGet(this, _object)[`vector<${objectId}>`] = _bcs3.bcs.vector(bcsObj.bcs);
+            __privateGet(this, _object)[`0x1::option::Option<${objectId}>`] = _bcs3.bcs.option(bcsObj.bcs);
           });
           Object.entries(data.exposedFunctions).forEach(([funcName, funcvalue]) => {
             const meta = funcvalue;
@@ -4904,7 +4907,25 @@ var Dubhe = class {
         let baseValue = res[0];
         let baseType = res[1];
         const value = Uint8Array.from(baseValue);
-        returnValues.push(this.object[baseType].parse(value));
+        if (!__privateGet(this, _object)[baseType]) {
+          console.log("\n\x1B[41m\x1B[37m ERROR \x1B[0m \x1B[31mUnsupported Type\x1B[0m");
+          console.log("\x1B[90m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\x1B[0m");
+          console.log(`\x1B[95m\u2022\x1B[0m Type: \x1B[33m"${baseType}"\x1B[0m`);
+          console.log("\x1B[95m\n\u2728 Available Types:\x1B[0m");
+          Object.keys(__privateGet(this, _object)).forEach(type => {
+            console.log(`  \x1B[36m\u25C6\x1B[0m ${type}`);
+          });
+          console.log("\n\x1B[34m\u{1F4A1} How to Add Custom Type:\x1B[0m");
+          console.log(`  You can add custom type by extending the #object map in your code:`);
+          console.log(`  \x1B[32mdubhe.object["${baseType}"] = bcs.struct("YourTypeName", {
+    field1: bcs.string(),
+    field2: bcs.u64(),
+    // ... other fields
+  });\x1B[0m`);
+          console.log("\x1B[90m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\x1B[0m\n");
+          throw new Error(`Unsupported type: ${baseType}`);
+        }
+        returnValues.push(__privateGet(this, _object)[baseType].parse(value));
       }
       return returnValues;
     } else {
@@ -5102,40 +5123,6 @@ var Dubhe = class {
       transactionBlock: txBlock,
       sender: this.getAddress(derivePathParams)
     });
-  }
-  async getWorld(worldObjectId) {
-    return this.suiInteractor.getObject(worldObjectId);
-  }
-  async listSchemaNames(worldId) {
-    const worldObject = await this.getObject(worldId);
-    const newObjectContent = worldObject.content;
-    if (newObjectContent != null) {
-      const objectContent = newObjectContent;
-      const objectFields = objectContent.fields;
-      return objectFields["schema_names"];
-    } else {
-      return [];
-    }
-  }
-  async getEntity(worldId, schemaName, entityId) {
-    const schemaModuleName = `${schemaName}_schema`;
-    const tx = new _transactions.Transaction();
-    const params = [tx.object(worldId)];
-    if (entityId !== void 0) {
-      params.push(tx.object(entityId));
-    }
-    const dryResult = await this.query[schemaModuleName].get(tx, params);
-    return this.view(dryResult);
-  }
-  async containEntity(worldId, schemaName, entityId) {
-    const schemaModuleName = `${schemaName}_schema`;
-    const tx = new _transactions.Transaction();
-    const params = [tx.object(worldId)];
-    if (entityId !== void 0) {
-      params.push(tx.object(entityId));
-    }
-    const dryResult = await this.query[schemaModuleName].contains(tx, params);
-    return this.view(dryResult);
   }
   async getOwnedObjects(owner, cursor, limit) {
     const ownedObjects = await this.suiInteractor.getOwnedObjects(owner, cursor, limit);
