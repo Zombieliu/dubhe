@@ -358,10 +358,10 @@ importers:
   packages/sui-cli:
     dependencies:
       '@0xobelisk/sui-client':
-        specifier: ^0.5.25
+        specifier: ^0.5.26
         version: link:../sui-client
       '@0xobelisk/sui-common':
-        specifier: ^0.5.18
+        specifier: ^0.5.19
         version: link:../sui-common
       '@mysten/sui':
         specifier: ^1.7.0
