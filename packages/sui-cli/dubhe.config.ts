@@ -17,7 +17,7 @@ export const dubheConfig = {
 				},
 				{
 					name: 'Account',
-					fields: { balance: 'u64', status: 'AccountStatus' },
+					fields: {balance: 'u64', status: 'AccountStatus'},
 				},
 				{
 					name: 'Metadata',
@@ -64,14 +64,97 @@ export const dubheConfig = {
 				details: 'StorageMap<u32, Details>',
 				account: 'StorageDoubleMap<u32, address, Account>',
 			},
+			events: [
+				{
+					name: 'Created',
+					fields: {
+						asset_id: 'u32',
+						name: 'String',
+						symbol: 'String',
+						owner: "address",
+						is_mintable: "bool",
+						is_burnable: "bool",
+						is_freezable: "bool",
+					},
+				},
+				{
+					name: 'Minted',
+					fields: {
+						asset_id: 'u32',
+						to: 'address',
+						amount: 'u64',
+					},
+				},
+				{
+					name: 'Burned',
+					fields: {
+						asset_id: 'u32',
+						from: 'address',
+						amount: 'u64',
+					},
+				},
+				{
+					name: 'Transferred',
+					fields: {
+						asset_id: 'u32',
+						from: 'address',
+						to: 'address',
+						amount: 'u64',
+					},
+				},
+				{
+					name: 'FrozenAddress',
+					fields: {
+						asset_id: 'u32',
+						owner: 'address',
+					},
+				},
+				{
+					name: 'BlockedAddress',
+					fields: {
+						asset_id: 'u32',
+						owner: 'address',
+					},
+				},
+				{
+					name: 'ThawedAddress',
+					fields: {
+						asset_id: 'u32',
+						owner: 'address',
+					},
+				},
+				{
+					name: 'FrozenAsset',
+					fields: {
+						asset_id: 'u32'
+					},
+				},
+				{
+					name: 'ThawedAsset',
+					fields: {
+						asset_id: 'u32'
+					},
+				},
+				{
+					name: "OwnershipTransferred",
+					fields: {
+						asset_id: 'u32',
+						from: 'address',
+						to: 'address',
+					}
+				}
+			],
 		},
 		dex: {
 			data: [
 				{
 					name: 'Pool',
 					fields: {
+						pool_id: 'u32',
 						pool_address: 'address',
 						lp_asset_id: 'u32',
+						asset1_id: 'u32',
+						asset2_id: 'u32',
 					},
 				},
 			],
@@ -80,6 +163,77 @@ export const dubheConfig = {
 				pool_id: 'StorageDoubleMap<u32, u32, u32>',
 				pools: 'StorageMap<u32, Pool>',
 			},
+			events: [
+				{
+					name: 'PoolCreated',
+					fields: {
+						creator: 'address',
+						pool_id: 'u32',
+						pool_address: 'address',
+						asset1_id: 'u32',
+						asset2_id: 'u32',
+						lp_asset_id: 'u32',
+						lp_asset_symbol: 'String',
+					},
+				},
+				{
+					name: "LiquidityAdded",
+					fields: {
+						who: 'address',
+						pool_id: 'u32',
+						asset1_amount: 'u64',
+						asset2_amount: 'u64',
+						lp_asset_id: 'u32',
+						lp_asset_minted: 'u64',
+					}
+				},
+				{
+					name: "LiquidityRemoved",
+					fields: {
+						who: 'address',
+						pool_id: 'u32',
+						asset1_amount: 'u64',
+						asset2_amount: 'u64',
+						lp_asset_id: 'u32',
+						lp_asset_burned: 'u64',
+					}
+				},
+				{
+					name: "SwapExecuted",
+					fields: {
+						who: 'address',
+						send_to: 'address',
+						amount_in: 'u64',
+						amount_out: 'u64',
+						path: "vector<u32>",
+					}
+				},
+				{
+					name: "Registered",
+					fields: {
+						who: 'address',
+						asset_id: 'u32',
+					}
+				},
+				{
+					name: "Wrapped",
+					fields: {
+						from: 'address',
+						asset_id: 'u32',
+						amount: 'u64',
+						beneficiary: 'address',
+					}
+				},
+				{
+					name: "Unwrapped",
+					fields: {
+						from: 'address',
+						asset_id: 'u32',
+						amount: 'u64',
+						beneficiary: 'address',
+					}
+				}
+			]
 		},
 		counter: {
 			structure: {

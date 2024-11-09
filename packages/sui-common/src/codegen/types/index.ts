@@ -4,12 +4,14 @@ export type BaseType =
   | "address"
   | "bool"
   | "u8"
+  | "u32"
   | "u64"
   | "u128"
   | "vector<address>"
   | "vector<bool>"
   | "vector<u8>"
   | "vector<vector<u8>>"
+  | "vector<u32>"
   | "vector<u64>"
   | "vector<u128>"
   | string;
@@ -26,6 +28,7 @@ export type StorageMapType =
 type Address = string;
 type Bool = boolean;
 type U8 = number;
+type U32 = number;
 type U64 = number;
 type U128 = number;
 type Vector<T> = T[];
@@ -35,6 +38,7 @@ export type BaseValueType =
   | Address
   | Bool
   | U8
+  | U32
   | U64
   | U128
   | Vector<Address>
@@ -54,6 +58,7 @@ export type SchemaData =  {
 export type SchemaType =  {
   data?: SchemaData[];
   structure: Record<string, string>;
+  events?: SchemaData[];
 }
 
 export type DubheConfig = {
@@ -71,11 +76,13 @@ export type MoveType =
   | "address"
   | "bool"
   | "u8"
+  | "u32"
   | "u64"
   | "u128"
   | "vector<address>"
   | "vector<bool>"
   | "vector<u8>"
   | "vector<vector<u8>>"
+  | "vector<u32>"
   | "vector<u64>"
   | "vector<u128>";
