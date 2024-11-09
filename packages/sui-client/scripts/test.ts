@@ -7,6 +7,7 @@ import {
   DevInspectResults,
   MoveStructType,
   MoveStructValueType,
+  bcs,
 } from '../src/index';
 import * as process from 'process';
 import dotenv from 'dotenv';
@@ -203,6 +204,38 @@ async function init() {
   )) as DevInspectResults;
   try {
     console.log(JSON.stringify(query10.results![0]));
+    const databcs = bcs.vector(
+      bcs.struct('Account', {
+        balance: bcs.u64(),
+        status: bcs.enum('AccountStatus', {
+          Liquid: null,
+          Frozen: null,
+          Blocked: null,
+        }),
+      })
+    );
+
+    // const value = Uint8Array.from(query10.results![0]);
+    // let fmatData = databcs.parse(value);
+    // console.log(fmatData);
+
+    let returnValues111: any[] = [];
+
+    const resultList111 = query10.results![0].returnValues!;
+
+    for (const res of resultList111) {
+      console.log('res ======');
+      console.log(res);
+      let baseValue = res[0];
+      const value1 = Uint8Array.from(baseValue);
+      returnValues111.push(databcs.parse(value1));
+    }
+
+    console.log('returnValues start ======');
+    console.log(returnValues111);
+    console.log(JSON.stringify(returnValues111));
+    console.log('returnValues end ======');
+
     let formatData10 = dubhe.view(query10);
     console.log(formatData10);
   } catch (e) {
