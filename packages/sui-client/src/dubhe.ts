@@ -39,6 +39,7 @@ import {
 } from './types';
 import { normalizeHexAddress, numberToAddressHex } from './utils';
 import { bcs, fromHEX, toHEX } from '@mysten/bcs';
+import { ContractDataParsingError } from './errors';
 
 export function isUndefined(value?: unknown): value is undefined {
   return value === undefined;
@@ -589,7 +590,7 @@ export class Dubhe {
       }
       return returnValues;
     } else {
-      return undefined;
+      throw new ContractDataParsingError(dryResult);
     }
   }
 
