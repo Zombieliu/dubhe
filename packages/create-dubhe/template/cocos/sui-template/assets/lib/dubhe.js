@@ -4631,6 +4631,18 @@ var Dubhe = class {
       "0x1::option::Option<u128>": _bcs3.bcs.option(_bcs3.bcs.u128()),
       "0x1::option::Option<u256>": _bcs3.bcs.option(_bcs3.bcs.u256()),
       "0x1::option::Option<bool>": _bcs3.bcs.option(_bcs3.bcs.bool()),
+      "0x1::option::Option<vector<address>>": _bcs3.bcs.option(_bcs3.bcs.vector(_bcs3.bcs.bytes(32).transform({
+        // To change the input type, you need to provide a type definition for the input
+        input: val => (0, _bcs3.fromHEX)(val),
+        output: val => (0, _bcs3.toHEX)(val)
+      }))),
+      "0x1::option::Option<vector<u8>>": _bcs3.bcs.option(_bcs3.bcs.vector(_bcs3.bcs.u8())),
+      "0x1::option::Option<vector<u16>>": _bcs3.bcs.option(_bcs3.bcs.vector(_bcs3.bcs.u16())),
+      "0x1::option::Option<vector<u32>>": _bcs3.bcs.option(_bcs3.bcs.vector(_bcs3.bcs.u32())),
+      "0x1::option::Option<vector<u64>>": _bcs3.bcs.option(_bcs3.bcs.vector(_bcs3.bcs.u64())),
+      "0x1::option::Option<vector<u128>>": _bcs3.bcs.option(_bcs3.bcs.vector(_bcs3.bcs.u128())),
+      "0x1::option::Option<vector<u256>>": _bcs3.bcs.option(_bcs3.bcs.vector(_bcs3.bcs.u256())),
+      "0x1::option::Option<vector<bool>>": _bcs3.bcs.option(_bcs3.bcs.vector(_bcs3.bcs.bool())),
       "vector<address>": _bcs3.bcs.vector(_bcs3.bcs.bytes(32).transform({
         // To change the input type, you need to provide a type definition for the input
         input: val => (0, _bcs3.fromHEX)(val),
@@ -4642,7 +4654,19 @@ var Dubhe = class {
       "vector<u64>": _bcs3.bcs.vector(_bcs3.bcs.u64()),
       "vector<u128>": _bcs3.bcs.vector(_bcs3.bcs.u128()),
       "vector<u256>": _bcs3.bcs.vector(_bcs3.bcs.u256()),
-      "vector<bool>": _bcs3.bcs.vector(_bcs3.bcs.bool())
+      "vector<bool>": _bcs3.bcs.vector(_bcs3.bcs.bool()),
+      "vector<vector<address>>": _bcs3.bcs.vector(_bcs3.bcs.vector(_bcs3.bcs.bytes(32).transform({
+        // To change the input type, you need to provide a type definition for the input
+        input: val => (0, _bcs3.fromHEX)(val),
+        output: val => (0, _bcs3.toHEX)(val)
+      }))),
+      "vector<vector<u8>>": _bcs3.bcs.vector(_bcs3.bcs.vector(_bcs3.bcs.u8())),
+      "vector<vector<u16>>": _bcs3.bcs.vector(_bcs3.bcs.vector(_bcs3.bcs.u16())),
+      "vector<vector<u32>>": _bcs3.bcs.vector(_bcs3.bcs.vector(_bcs3.bcs.u32())),
+      "vector<vector<u64>>": _bcs3.bcs.vector(_bcs3.bcs.vector(_bcs3.bcs.u64())),
+      "vector<vector<u128>>": _bcs3.bcs.vector(_bcs3.bcs.vector(_bcs3.bcs.u128())),
+      "vector<vector<u256>>": _bcs3.bcs.vector(_bcs3.bcs.vector(_bcs3.bcs.u256())),
+      "vector<vector<bool>>": _bcs3.bcs.vector(_bcs3.bcs.vector(_bcs3.bcs.bool()))
     });
     __privateAdd(this, _exec, async (meta, tx, params, typeArguments, isRaw) => {
       if (isRaw === true) {

@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@0xobelisk/sui-cli": "^0.5.23",
-    "@0xobelisk/sui-client": "^0.5.26",
+    "@0xobelisk/sui-client": "^0.5.27",
     "@0xobelisk/sui-common": "^0.5.19",
     "@mysten/sui": "1.7.0",
     "clsx": "^1.2.1",

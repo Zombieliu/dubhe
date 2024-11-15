@@ -39,6 +39,7 @@ import {
 } from './types';
 import { normalizeHexAddress, numberToAddressHex } from './utils';
 import { bcs, fromHEX, toHEX } from '@mysten/bcs';
+import { ContractDataParsingError } from './errors';
 
 export function isUndefined(value?: unknown): value is undefined {
   return value === undefined;
@@ -140,6 +141,22 @@ export class Dubhe {
     '0x1::option::Option<u128>': bcs.option(bcs.u128()),
     '0x1::option::Option<u256>': bcs.option(bcs.u256()),
     '0x1::option::Option<bool>': bcs.option(bcs.bool()),
+    '0x1::option::Option<vector<address>>': bcs.option(
+      bcs.vector(
+        bcs.bytes(32).transform({
+          // To change the input type, you need to provide a type definition for the input
+          input: (val: string) => fromHEX(val),
+          output: (val) => toHEX(val),
+        })
+      )
+    ),
+    '0x1::option::Option<vector<u8>>': bcs.option(bcs.vector(bcs.u8())),
+    '0x1::option::Option<vector<u16>>': bcs.option(bcs.vector(bcs.u16())),
+    '0x1::option::Option<vector<u32>>': bcs.option(bcs.vector(bcs.u32())),
+    '0x1::option::Option<vector<u64>>': bcs.option(bcs.vector(bcs.u64())),
+    '0x1::option::Option<vector<u128>>': bcs.option(bcs.vector(bcs.u128())),
+    '0x1::option::Option<vector<u256>>': bcs.option(bcs.vector(bcs.u256())),
+    '0x1::option::Option<vector<bool>>': bcs.option(bcs.vector(bcs.bool())),
     'vector<address>': bcs.vector(
       bcs.bytes(32).transform({
         // To change the input type, you need to provide a type definition for the input
@@ -154,6 +171,22 @@ export class Dubhe {
     'vector<u128>': bcs.vector(bcs.u128()),
     'vector<u256>': bcs.vector(bcs.u256()),
     'vector<bool>': bcs.vector(bcs.bool()),
+    'vector<vector<address>>': bcs.vector(
+      bcs.vector(
+        bcs.bytes(32).transform({
+          // To change the input type, you need to provide a type definition for the input
+          input: (val: string) => fromHEX(val),
+          output: (val) => toHEX(val),
+        })
+      )
+    ),
+    'vector<vector<u8>>': bcs.vector(bcs.vector(bcs.u8())),
+    'vector<vector<u16>>': bcs.vector(bcs.vector(bcs.u16())),
+    'vector<vector<u32>>': bcs.vector(bcs.vector(bcs.u32())),
+    'vector<vector<u64>>': bcs.vector(bcs.vector(bcs.u64())),
+    'vector<vector<u128>>': bcs.vector(bcs.vector(bcs.u128())),
+    'vector<vector<u256>>': bcs.vector(bcs.vector(bcs.u256())),
+    'vector<vector<bool>>': bcs.vector(bcs.vector(bcs.bool())),
   };
 
   /**
@@ -557,7 +590,7 @@ export class Dubhe {
       }
       return returnValues;
     } else {
-      return undefined;
+      throw new ContractDataParsingError(dryResult);
     }
   }
 
