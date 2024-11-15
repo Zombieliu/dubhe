@@ -1,0 +1,39 @@
+{
+  "name": "dubhe-contract-template",
+  "version": "0.0.1",
+  "description": "Simple starter template",
+  "author": "team@0xobelisk.com",
+  "license": "MIT",
+  "scripts": {
+    "// Utility Commands": "----------------",
+    "schema:gen": "pnpm dubhe schemagen --configPath ./dubhe.config.ts",
+    "account:gen": "NODE_NO_WARNINGS=1 ts-node scripts/generateAccount.ts",
+
+    "// Local Network": "----------------",
+    "localnet:setup": "pnpm localnet:start && pnpm localnet:wait && pnpm localnet:account && pnpm localnet:faucet",
+    "localnet:start": "pnpm dubhe localnode start -b",
+    "localnet:restart": "pnpm dubhe localnode restart -b",
+    "localnet:stop": "pnpm dubhe localnode stop",
+    "localnet:status": "pnpm dubhe localnode status",
+    "localnet:wait": "NODE_NO_WARNINGS=1 ts-node scripts/waitNode.ts",
+    "localnet:faucet": "pnpm dubhe faucet --network localnet",
+    "localnet:deploy": "NODE_NO_WARNINGS=1 ts-node scripts/deployment/localnet/deploy.ts",
+
+    "// Test Network": "----------------",
+    "testnet:setup": "pnpm testnet:account && pnpm testnet:check-balance && pnpm testnet:deploy",
+    "testnet:check-balance": "NODE_NO_WARNINGS=1 ts-node scripts/checkBalance.ts testnet",
+    "testnet:faucet": "pnpm dubhe faucet --network testnet",
+    "testnet:deploy": "NODE_NO_WARNINGS=1 ts-node scripts/deployment/testnet/deploy.ts"
+  },
+  "dependencies": {
+    "@0xobelisk/sui-cli": "^0.5.23",
+    "@0xobelisk/sui-client": "^0.5.26",
+    "@0xobelisk/sui-common": "^0.5.19",
+    "dotenv": "^16.4.5",
+    "chalk": "^4.1.2"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1",
+    "typescript": "5.1.6"
+  }
+}
