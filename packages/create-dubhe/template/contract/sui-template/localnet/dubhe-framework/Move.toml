@@ -1,7 +1,7 @@
 [package]
 name = "Dubhe"
 edition = "2024.alpha"
-published-at = "0xf0334377b345bf2775672b0ccca08820308f20ffca1d3aff82b5b32c87fb28bc"
+published-at = "0x5ec19bb568f850de86b05cefa617c73d2c7cbd2e66800e44f30fa3465e18a7cf"
  license = "MIT"
  authors = ["Obelisk Labs"]
 
@@ -9,7 +9,7 @@ published-at = "0xf0334377b345bf2775672b0ccca08820308f20ffca1d3aff82b5b32c87fb28
 Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "mainnet-v1.36.2" }
 
 [addresses]
-dubhe = "0xf0334377b345bf2775672b0ccca08820308f20ffca1d3aff82b5b32c87fb28bc"
+dubhe = "0x5ec19bb568f850de86b05cefa617c73d2c7cbd2e66800e44f30fa3465e18a7cf"
 #dubhe = "0x0"
 
 # Named addresses will be accessible in Move as `@name`. They're also exported:

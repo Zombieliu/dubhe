@@ -9,5 +9,5 @@ Dubhe = { local = "../../localnet/dubhe-framework" }
 
 [addresses]
 sui = "0x2"
-dubhe = "0xf0334377b345bf2775672b0ccca08820308f20ffca1d3aff82b5b32c87fb28bc"
+dubhe = "0x5ec19bb568f850de86b05cefa617c73d2c7cbd2e66800e44f30fa3465e18a7cf"
 counter = "0x0"
