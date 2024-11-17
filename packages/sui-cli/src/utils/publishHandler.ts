@@ -14,6 +14,7 @@ import {
 	validatePrivateKey,
 	schema,
 } from './utils';
+import { DubheConfig } from '@0xobelisk/sui-common';
 
 async function getDappsObjectId(
 	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet'
@@ -26,19 +27,36 @@ async function getDappsObjectId(
 	}
 }
 
+function capitalizeAndRemoveUnderscores(input: string): string {
+	return input
+		.split('_')
+		.map((word, index) => {
+			return index === 0
+				? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+				: word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+		})
+		.join('');
+}
+
+function getLastSegment(input: string): string {
+	const segments = input.split('::');
+	return segments.length > 0 ? segments[segments.length - 1] : '';
+}
+
 export async function publishHandler(
-	name: string,
+	dubheConfig: DubheConfig,
 	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet',
 	dappsObjectId?: string
 ) {
-	console.log('\n🚀 Starting Contract Publication...');
-	console.log(`  ├─ Project: ${name}`);
-	console.log(`  ├─ Network: ${network}`);
+
 
 	const path = process.cwd();
-	const projectPath = `${path}/contracts/${name}`;
+	const projectPath = `${path}/contracts/${dubheConfig.name}`;
 	dappsObjectId = dappsObjectId || (await getDappsObjectId(network));
 
+	console.log('\n🚀 Starting Contract Publication...');
+	console.log(`  ├─ Project: ${projectPath}`);
+	console.log(`  ├─ Network: ${network}`);
 	console.log('  ├─ Validating Environment...');
 	const privateKey = process.env.PRIVATE_KEY;
 	if (!privateKey) {
@@ -162,15 +180,24 @@ in your contracts directory to use the default sui private key.`
 			) {
 				console.log(`  ├─ ${object.objectType}`);
 				console.log(`     └─ ID: ${object.objectId}`);
+
+				let structure: Record<string, string> = {};
+				for (let schemaKey in dubheConfig.schemas) {
+					if (capitalizeAndRemoveUnderscores(schemaKey) === getLastSegment(object.objectType)) {
+						structure = dubheConfig.schemas[schemaKey].structure;
+					}
+				}
+
 				schemas.push({
 					name: object.objectType,
 					objectId: object.objectId,
+					structure,
 				});
 			}
 		});
 
 		saveContractData(
-			name,
+			dubheConfig.name,
 			network,
 			packageId,
 			schemas,
