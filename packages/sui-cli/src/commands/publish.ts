@@ -38,7 +38,7 @@ const commandModule: CommandModule<Options, Options> = {
 			const dubheConfig = (await loadConfig(
 				configPath
 			)) as DubheConfig;
-			await publishHandler(dubheConfig.name, network, dappsObjectId);
+			await publishHandler(dubheConfig, network, dappsObjectId);
 		} catch (error: any) {
 			logError(error);
 			process.exit(1);
