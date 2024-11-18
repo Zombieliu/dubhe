@@ -1,7 +1,6 @@
 import { SchemaType, DubheConfig } from '../../types';
 import { rmdirSync, existsSync } from 'fs';
 import { deleteFolderRecursive } from './common';
-import { generateSystem } from './generateSystem';
 import { generateToml } from './generateToml';
 import { generateSchemaData, generateSchemaStructure } from './generateSchema';
 import { generateDeployHook, generateMigrate } from './generateScript';
@@ -62,7 +61,6 @@ export async function schemaGen(
 		await generateDeployHook(config, path);
 	}
 
-	await generateSystem(config, path);
 	await generateSchemaData(config.name, config.schemas, path);
 	await generateSchemaStructure(config.name, config.schemas, path);
 	await generateSchemaEvent(config.name, config.schemas, path);
