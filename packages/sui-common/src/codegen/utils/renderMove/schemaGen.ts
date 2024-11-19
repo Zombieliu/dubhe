@@ -6,6 +6,7 @@ import { generateSchemaData, generateSchemaStructure } from './generateSchema';
 import { generateDeployHook, generateMigrate } from './generateScript';
 import { generateDappKey } from './generateDappKey';
 import {generateSchemaEvent} from "./generateEvent";
+import { generateSystem } from './generateSystem';
 
 function matchFrameworkId(
 	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet'
@@ -65,6 +66,7 @@ export async function schemaGen(
 	await generateSchemaStructure(config.name, config.schemas, path, config.migration_enabled);
 	await generateSchemaEvent(config.name, config.schemas, path);
 	await generateDappKey(config, path);
+	await generateSystem(config, path);
 	if (config.migration_enabled) {
 		await generateMigrate(config, path);
 	}
