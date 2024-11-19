@@ -3,7 +3,6 @@ import { DubheConfig } from '@0xobelisk/sui-common';
 export const dubheConfig = {
 	name: 'merak',
 	description: 'Merak Protocol',
-	systems: ['assets', 'dex', 'wrapper'],
 	schemas: {
 		assets: {
 			data: [
