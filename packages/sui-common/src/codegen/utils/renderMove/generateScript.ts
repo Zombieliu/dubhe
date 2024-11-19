@@ -84,33 +84,21 @@ export async function generateDeployHook(
 	console.log('✅ Deploy Hook Generation Complete\n');
 }
 
-export function generateMigrate(config: DubheConfig, srcPrefix: string) {
+export async function generateMigrate(config: DubheConfig, srcPrefix: string) {
 	if (
 		!existsSync(
 			`${srcPrefix}/contracts/${config.name}/sources/script/migrate.move`
 		)
 	) {
 		let code = `module ${config.name}::migrate {
-    use dubhe::world::{World, AdminCap};
+    const ON_CHAIN_VERSION: u32 = 0;
 
-    /// Not the right admin for this world
-    const ENotAdmin: u64 = 0;
-    const EWrongVersion: u64 = 1;
-    const ENotUpgrade: u64 = 2;
-    const VERSION: u64 = 1;
-
-    public entry fun run(world: &mut World, admin_cap: &AdminCap) {
-        assert!(world.admin() == object::id(admin_cap), ENotAdmin);
-        assert!(world.version() < VERSION, ENotUpgrade);
-        *dubhe::world::mut_version(world, admin_cap) = VERSION;
-    }
-
-    public fun assert_version(world: &World){
-        assert!(world.version() == VERSION, EWrongVersion);
+    public fun on_chain_version(): u32 {
+        ON_CHAIN_VERSION
     }
 }
 `;
-		formatAndWriteMove(
+		await formatAndWriteMove(
 			code,
 			`${srcPrefix}/contracts/${config.name}/sources/script/migrate.move`,
 			'formatAndWriteMove'

@@ -66,6 +66,7 @@ export type DubheConfig = {
   description: string;
   systems: string[];
   schemas: Record<string, SchemaType>;
+  migration_enabled: boolean
 };
 
 export type MoveType =

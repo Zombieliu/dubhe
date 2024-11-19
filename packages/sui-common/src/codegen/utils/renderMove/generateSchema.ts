@@ -183,7 +183,8 @@ function generateImport(
 export async function generateSchemaStructure(
 	projectName: string,
 	schemas: Record<string, SchemaType>,
-	path: string
+	path: string,
+	migration_enabled: boolean
 ) {
 	console.log('\n🔨 Starting Schema Structure Generation...');
 	for (const schemaName in schemas) {
@@ -200,6 +201,7 @@ export async function generateSchemaStructure(
 		const schemaMoudle = `module ${projectName}::${schemaName}_schema {
                     use std::ascii::String;
                     use std::ascii::string;
+                    use sui::package::UpgradeCap;
                     use std::type_name;
                     use dubhe::dapps_system;
                     use dubhe::dapps_schema::Dapps;
@@ -260,16 +262,20 @@ export async function generateSchemaStructure(
 												) {
 													storage_type = `storage_double_map::new()`;
 												}
-												return `
+												return `if(!df::exists_(&id, string(b"${key}"))) {
 												df::add<String, ${value}>(&mut id, string(b"${key}"), ${storage_type});
-												`;
+												};`
 											})
 											.join('')}
                       
                       ${capitalizeAndRemoveUnderscores(schemaName)} { id }
                     }
                     
+                    ${ migration_enabled ? `public fun migrate(_${schemaName}: &mut ${capitalizeAndRemoveUnderscores(schemaName)}, _cap: &UpgradeCap) {  }`
+					                : ""
+										}
                     
+              
                  // ======================================== View Functions ========================================
                     ${Object.entries(schema.structure)
 			.map(([key, value]) => {

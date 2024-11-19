@@ -17,7 +17,7 @@ export const dubheConfig = {
 				},
 				{
 					name: 'Account',
-					fields: {balance: 'u64', status: 'AccountStatus'},
+					fields: {balance: 'u256', status: 'AccountStatus'},
 				},
 				{
 					name: 'Metadata',
@@ -42,7 +42,7 @@ export const dubheConfig = {
 						// Can change `owner`, `issuer`, `freezer` and `admin` accounts.
 						owner: 'address',
 						// The total supply across all accounts.
-						supply: 'u64',
+						supply: 'u256',
 						// The total number of accounts.
 						accounts: 'u32',
 						// The total number of approvals.
@@ -82,7 +82,7 @@ export const dubheConfig = {
 					fields: {
 						asset_id: 'u32',
 						to: 'address',
-						amount: 'u64',
+						amount: 'u256',
 					},
 				},
 				{
@@ -90,7 +90,7 @@ export const dubheConfig = {
 					fields: {
 						asset_id: 'u32',
 						from: 'address',
-						amount: 'u64',
+						amount: 'u256',
 					},
 				},
 				{
@@ -99,7 +99,7 @@ export const dubheConfig = {
 						asset_id: 'u32',
 						from: 'address',
 						to: 'address',
-						amount: 'u64',
+						amount: 'u256',
 					},
 				},
 				{
@@ -157,9 +157,21 @@ export const dubheConfig = {
 						asset2_id: 'u32',
 					},
 				},
+				{
+					name: 'PathElement',
+					fields: {
+						asset_id: 'u32',
+						balance: 'u256',
+					}
+				}
 			],
 			structure: {
 				next_pool_id: 'StorageValue<u32>',
+				swap_fee: 'StorageValue<u256>',
+				lp_fee: 'StorageValue<u256>',
+				fee_to: 'StorageValue<address>',
+				max_swap_path_len: 'StorageValue<u8>',
+				min_liquidity: 'StorageValue<u256>',
 				pool_id: 'StorageDoubleMap<u32, u32, u32>',
 				pools: 'StorageMap<u32, Pool>',
 			},
@@ -181,10 +193,10 @@ export const dubheConfig = {
 					fields: {
 						who: 'address',
 						pool_id: 'u32',
-						asset1_amount: 'u64',
-						asset2_amount: 'u64',
+						asset1_amount: 'u256',
+						asset2_amount: 'u256',
 						lp_asset_id: 'u32',
-						lp_asset_minted: 'u64',
+						lp_asset_minted: 'u256',
 					}
 				},
 				{
@@ -192,10 +204,10 @@ export const dubheConfig = {
 					fields: {
 						who: 'address',
 						pool_id: 'u32',
-						asset1_amount: 'u64',
-						asset2_amount: 'u64',
+						asset1_amount: 'u256',
+						asset2_amount: 'u256',
 						lp_asset_id: 'u32',
-						lp_asset_burned: 'u64',
+						lp_asset_burned: 'u256',
 					}
 				},
 				{
@@ -203,8 +215,8 @@ export const dubheConfig = {
 					fields: {
 						who: 'address',
 						send_to: 'address',
-						amount_in: 'u64',
-						amount_out: 'u64',
+						amount_in: 'u256',
+						amount_out: 'u256',
 						path: "vector<u32>",
 					}
 				},
@@ -220,7 +232,7 @@ export const dubheConfig = {
 					fields: {
 						from: 'address',
 						asset_id: 'u32',
-						amount: 'u64',
+						amount: 'u256',
 						beneficiary: 'address',
 					}
 				},
@@ -229,7 +241,7 @@ export const dubheConfig = {
 					fields: {
 						from: 'address',
 						asset_id: 'u32',
-						amount: 'u64',
+						amount: 'u256',
 						beneficiary: 'address',
 					}
 				}
@@ -241,4 +253,5 @@ export const dubheConfig = {
 			},
 		}
 	},
+	migration_enabled: true,
 } as DubheConfig;

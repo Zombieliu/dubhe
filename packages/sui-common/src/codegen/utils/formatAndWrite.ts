@@ -24,7 +24,7 @@ export async function formatAndWriteMove(
 
   let code = schemaPrefix + formattedOutput
 
-  if (fullOutputPath.includes(".toml") || fullOutputPath.includes("system")) {
+  if (fullOutputPath.includes(".toml") || fullOutputPath.includes("system") || fullOutputPath.includes("migrate")) {
     code = formattedOutput
   } else if (fullOutputPath.includes("deploy_hook")) {
     code = deployHookPrefix + formattedOutput
