@@ -14,21 +14,21 @@ export type DeploymentJsonType = {
 	projectName: string;
 	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet';
 	packageId: string;
-	schemas: schema[];
-	upgradeCap: string;
+	// schemas: schema[];
+	// upgradeCap: string;
 	version: number;
 };
 
 export function validatePrivateKey(privateKey: string): false | string {
 	if (privateKey.startsWith('roochsecretkey')) {
-		if (privateKey.length === 70) {
+		if (privateKey.length === 74) {
 			return privateKey;
 		} else {
 			return false;
 		}
 	} else if (privateKey.startsWith('0x')) {
 		const strippedPrivateKey = privateKey.slice(2);
-		if (strippedPrivateKey.length === 64) {
+		if (strippedPrivateKey.length <= 64) {
 			return strippedPrivateKey;
 		} else {
 			return false;
@@ -99,38 +99,38 @@ export async function getOldPackageId(
 	return deployment.packageId;
 }
 
-export async function getUpgradeCap(
-	projectPath: string,
-	network: string
-): Promise<string> {
-	const deployment = await getDeploymentJson(projectPath, network);
-	return deployment.upgradeCap;
-}
+// export async function getUpgradeCap(
+// 	projectPath: string,
+// 	network: string
+// ): Promise<string> {
+// 	const deployment = await getDeploymentJson(projectPath, network);
+// 	return deployment.upgradeCap;
+// }
 
-export async function getObjectIdBySchemaName(
-	projectPath: string,
-	network: string,
-	schemaName: string
-): Promise<string | undefined> {
-	const deployment = await getDeploymentJson(projectPath, network);
-	return deployment.schemas.find(schema => schema.name.includes(schemaName))
-		?.objectId;
-}
+// export async function getObjectIdBySchemaName(
+// 	projectPath: string,
+// 	network: string,
+// 	schemaName: string
+// ): Promise<string | undefined> {
+// 	const deployment = await getDeploymentJson(projectPath, network);
+// 	return deployment.schemas.find(schema => schema.name.includes(schemaName))
+// 		?.objectId;
+// }
 
 export function saveContractData(
 	projectName: string,
 	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet',
 	packageId: string,
-	schemas: schema[],
-	upgradeCap: string,
+	// schemas: schema[],
+	// upgradeCap: string,
 	version: number
 ) {
 	const DeploymentData: DeploymentJsonType = {
 		projectName,
 		network,
 		packageId,
-		schemas,
-		upgradeCap,
+		// schemas,
+		// upgradeCap,
 		version,
 	};
 
@@ -138,7 +138,7 @@ export function saveContractData(
 	const storeDeploymentData = JSON.stringify(DeploymentData, null, 2);
 	writeOutput(
 		storeDeploymentData,
-		`${path}/contracts/${projectName}/.history/sui_${network}/latest.json`,
+		`${path}/contracts/${projectName}/.history/rooch_${network}/latest.json`,
 		'Update deploy log'
 	);
 }

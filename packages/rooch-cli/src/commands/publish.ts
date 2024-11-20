@@ -6,7 +6,6 @@ import { loadConfig, DubheConfig } from '@0xobelisk/sui-common';
 type Options = {
 	network: any;
 	configPath: string;
-	dappsObjectId?: string;
 };
 
 const commandModule: CommandModule<Options, Options> = {
@@ -26,19 +25,13 @@ const commandModule: CommandModule<Options, Options> = {
 				default: 'dubhe.config.ts',
 				desc: 'Configuration file path',
 			},
-			dappsObjectId: {
-				type: 'string',
-				desc: 'Optional dappsObjectId',
-			},
 		});
 	},
 
-	async handler({ network, configPath, dappsObjectId }) {
+	async handler({ network, configPath }) {
 		try {
-			const dubheConfig = (await loadConfig(
-				configPath
-			)) as DubheConfig;
-			await publishHandler(dubheConfig, network, dappsObjectId);
+			const dubheConfig = (await loadConfig(configPath)) as DubheConfig;
+			await publishHandler(dubheConfig, network);
 		} catch (error: any) {
 			logError(error);
 			process.exit(1);
