@@ -51,10 +51,6 @@ export async function publishHandler(
 			}
 		);
 		const jsonOutput = JSON.parse(output);
-		console.log(chalk.blue('===================='));
-		console.log(chalk.blue('jsonOutput: '));
-		console.log(jsonOutput);
-		console.log(chalk.blue('===================='));
 		if (jsonOutput.execution_info.status.type !== 'executed') {
 			throw new DubheCliError(`Publish failed: ${jsonOutput.error_info}`);
 		}
