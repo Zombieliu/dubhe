@@ -8,6 +8,7 @@ export * from './localnode';
 export type schema = {
 	name: string;
 	objectId: string;
+	structure: Record<string, string>
 };
 
 export type DeploymentJsonType = {
@@ -73,6 +74,14 @@ async function getDeploymentJson(projectPath: string, network: string) {
 	} catch {
 		throw new FsIibError('Fs read deployment file failed.');
 	}
+}
+
+export async function getOnchainSchemas(
+	projectPath: string,
+	network: string
+): Promise<schema[]> {
+	const deployment = await getDeploymentJson(projectPath, network);
+	return deployment.schemas;
 }
 
 export async function getVersion(

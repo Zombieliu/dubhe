@@ -183,7 +183,8 @@ function generateImport(
 export async function generateSchemaStructure(
 	projectName: string,
 	schemas: Record<string, SchemaType>,
-	path: string
+	path: string,
+	migration_enabled: boolean
 ) {
 	console.log('\n🔨 Starting Schema Structure Generation...');
 	for (const schemaName in schemas) {
@@ -199,6 +200,8 @@ export async function generateSchemaStructure(
 		const schema = schemas[schemaName];
 		const schemaMoudle = `module ${projectName}::${schemaName}_schema {
                     use std::ascii::String;
+                    use std::ascii::string;
+                    use sui::package::UpgradeCap;
                     use std::type_name;
                     use dubhe::dapps_system;
                     use dubhe::dapps_schema::Dapps;
@@ -206,27 +209,27 @@ export async function generateSchemaStructure(
                     use dubhe::storage_map::{Self, StorageMap};
                     use dubhe::storage_double_map::{Self, StorageDoubleMap};
                     use ${projectName}::dapp_key::DappKey;
+                    use sui::dynamic_field as df;
                     ${generateImport(projectName, schemaName, schema)}
 
                     public struct ${capitalizeAndRemoveUnderscores(
 						schemaName
 					)} has key, store {
-                        id: UID,
-                        ${getStructAttrsWithType(schema.structure)}
-                    } 
+                        id: UID
+											} 
                     
                      ${Object.entries(schema.structure)
 							.map(([key, value]) => {
 								return `public fun borrow_${key}(self: &${capitalizeAndRemoveUnderscores(
 									schemaName
 								)}) : &${value} {
-                        &self.${key}
+                        df::borrow(&self.id, string(b"${key}"))
                     }
                     
                     public(package) fun borrow_mut_${key}(self: &mut ${capitalizeAndRemoveUnderscores(
 						schemaName
 					)}): &mut ${value} {
-                        &mut self.${key}
+                        df::borrow_mut(&mut self.id, string(b"${key}"))
                     }
                     `;
 							})
@@ -246,27 +249,33 @@ export async function generateSchemaStructure(
                       dapps_system::add_schema<${capitalizeAndRemoveUnderscores(
 							schemaName
 						)}>(dapps, package_id, ctx);
-                      ${capitalizeAndRemoveUnderscores(schemaName)} {
-                          id: object::new(ctx),
-                          ${Object.entries(schema.structure)
-								.map(([key, value]) => {
-									let storage_type = '';
-									if (value.includes('StorageValue')) {
-										storage_type = `storage_value::new()`;
-									} else if (value.includes('StorageMap')) {
-										storage_type = `storage_map::new()`;
-									} else if (
-										value.includes('StorageDoubleMap')
-									) {
-										storage_type = `storage_double_map::new()`;
-									}
-									return `${key}: ${storage_type},`;
-								})
-								.join(' ')}
-                        }
+                      let mut id = object::new(ctx);
+                      ${Object.entries(schema.structure)
+											.map(([key, value]) => {
+												let storage_type = '';
+												if (value.includes('StorageValue')) {
+													storage_type = `storage_value::new()`;
+												} else if (value.includes('StorageMap')) {
+													storage_type = `storage_map::new()`;
+												} else if (
+													value.includes('StorageDoubleMap')
+												) {
+													storage_type = `storage_double_map::new()`;
+												}
+												return `if(!df::exists_(&id, string(b"${key}"))) {
+												df::add<String, ${value}>(&mut id, string(b"${key}"), ${storage_type});
+												};`
+											})
+											.join('')}
+                      
+                      ${capitalizeAndRemoveUnderscores(schemaName)} { id }
                     }
                     
+                    ${ migration_enabled ? `public fun migrate(_${schemaName}: &mut ${capitalizeAndRemoveUnderscores(schemaName)}, _cap: &UpgradeCap) {  }`
+					                : ""
+										}
                     
+              
                  // ======================================== View Functions ========================================
                     ${Object.entries(schema.structure)
 			.map(([key, value]) => {
@@ -285,26 +294,26 @@ export async function generateSchemaStructure(
 					para_value = `${all_types[1]}`
 					borrow_key = 'try_get(key)'
 					extra_code = `public fun get_${key}_keys(self: &${capitalizeAndRemoveUnderscores(schemaName)}) : vector<${all_types[0]}> {
-									self.${key}.keys()
+									self.borrow_${key}().keys()
 								}
 							
 							public fun get_${key}_values(self: &${capitalizeAndRemoveUnderscores(schemaName)}) : vector<${all_types[1]}> {
-									self.${key}.values()
+									self.borrow_${key}().values()
 								}`
 				} else if (value.includes('StorageDoubleMap')) {
 					para_key = [`key1: ${all_types[0]}`, `key2: ${all_types[1]}`]
 					para_value = `${all_types[2]}`
 					borrow_key = 'try_get(key1, key2)'
 					extra_code = `public fun get_${key}_keys(self: &${capitalizeAndRemoveUnderscores(schemaName)}) : (vector<${all_types[0]}>, vector<${all_types[1]}>) {
-									self.${key}.keys()
+									self.borrow_${key}().keys()
 								}
 							
 							public fun get_${key}_values(self: &${capitalizeAndRemoveUnderscores(schemaName)}) : vector<${all_types[2]}> {
-									self.${key}.values()
+									self.borrow_${key}().values()
 								}`
 				}
 				return `public fun get_${key}(self: &${capitalizeAndRemoveUnderscores(schemaName)}, ${para_key}) : Option<${para_value}> {
-									self.${key}.${borrow_key}
+									self.borrow_${key}().${borrow_key}
 								}
 								` + extra_code;
 			})

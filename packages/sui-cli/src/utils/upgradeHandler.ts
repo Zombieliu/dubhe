@@ -1,246 +1,241 @@
-// import { Dubhe } from '@0xobelisk/sui-client';
-// import { Transaction, UpgradePolicy } from '@mysten/sui/transactions';
-// import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
-// import { execSync } from 'child_process';
-// import chalk from 'chalk';
-// import { DubheCliError, UpgradeError } from './errors';
-// import {
-// 	updateVersionInFile,
-// 	getOldPackageId,
-// 	getVersion,
-// 	getUpgradeCap,
-// 	saveContractData,
-// 	validatePrivateKey,
-// } from './utils';
+import { Dubhe } from '@0xobelisk/sui-client';
+import { Transaction, UpgradePolicy } from '@mysten/sui/transactions';
+import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
+import { execSync } from 'child_process';
+import chalk from 'chalk';
+import { DubheCliError, UpgradeError } from './errors';
+import {
+	updateVersionInFile,
+	getOldPackageId,
+	getVersion,
+	getUpgradeCap,
+	saveContractData,
+	validatePrivateKey, getOnchainSchemas,
+} from './utils';
+import * as fs from 'fs';
+import * as path from 'path';
+import { DubheConfig } from '@0xobelisk/sui-common';
 
-// type ObjectContent = {
-// 	type: string;
-// 	fields: Record<string, any>;
-// 	hasPublicTransfer: boolean;
-// 	dataType: string;
-// };
+type ObjectContent = {
+	type: string;
+	fields: Record<string, any>;
+	hasPublicTransfer: boolean;
+	dataType: string;
+};
 
-// export async function upgradeHandler(
-// 	name: string,
-// 	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet',
-// 	schemaNames: string[]
-// ) {
-// 	const path = process.cwd();
-// 	const projectPath = `${path}/contracts/${name}`;
-// 	const privateKey = process.env.PRIVATE_KEY;
-// 	if (!privateKey)
-// 		throw new DubheCliError(
-// 			`Missing PRIVATE_KEY environment variable.
-// Run 'echo "PRIVATE_KEY=YOUR_PRIVATE_KEY" > .env'
-// in your contracts directory to use the default sui private key.`
-// 		);
+type Field = {
+	name: string;
+	type: string;
+}
 
-// 	const privateKeyFormat = validatePrivateKey(privateKey);
-// 	if (privateKeyFormat === false) {
-// 		throw new DubheCliError(`Please check your privateKey.`);
-// 	}
-// 	const dubhe = new Dubhe({
-// 		secretKey: privateKeyFormat,
-// 	});
-// 	const keypair = dubhe.getKeypair();
+type Migration = {
+	schemaName: string;
+	fields: Field[];
+};
 
-// 	const client = new SuiClient({
-// 		url: getFullnodeUrl(network),
-// 	});
+function updateMigrateMethod(projectPath: string, migrations: Migration[]): void {
+	migrations.forEach((migration) => {
+		let filePath = `${projectPath}/sources/codegen/schemas/${migration.schemaName}.move`;
+		const fileContent = fs.readFileSync(filePath, 'utf-8');
+		const migrateMethodRegex = new RegExp(`public fun migrate\\(_${migration.schemaName}: &mut ${capitalizeAndRemoveUnderscores(migration.schemaName)}, _cap: &UpgradeCap\\) {[^}]*}`);
+		const newMigrateMethod = `
+public fun migrate(assets: &mut Assets, _cap: &UpgradeCap) {
+${migration.fields.map((field) => {
+			let storage_type = ""
+			if (field.type.includes('StorageValue')) {
+				storage_type = `storage_value::new()`;
+			} else if (field.type.includes('StorageMap')) {
+				storage_type = `storage_map::new()`;
+			} else if (
+				field.type.includes('StorageDoubleMap')
+			) {
+				storage_type = `storage_double_map::new()`;
+			}
 
-// 	let oldVersion = Number(await getVersion(projectPath, network));
-// 	let oldPackageId = await getOldPackageId(projectPath, network);
-// 	let worldId = await getWorldId(projectPath, network);
-// 	let upgradeCap = await getUpgradeCap(projectPath, network);
-// 	let adminCap = await getAdminCap(projectPath, network);
+			return `
+    df::add<String, ${field.type}>(&mut assets.id, string(b"${field.name}"), ${storage_type});
+`;
+		}).join('')}
+}
+`;
 
-// 	const newVersion = oldVersion + 1;
-// 	await updateVersionInFile(projectPath, newVersion.toString());
+		const updatedContent = fileContent.replace(migrateMethodRegex, newMigrateMethod);
+		fs.writeFileSync(filePath, updatedContent, 'utf-8');
+	})
 
-// 	try {
-// 		let modules: any, dependencies: any, digest: any;
-// 		try {
-// 			const {
-// 				modules: extractedModules,
-// 				dependencies: extractedDependencies,
-// 				digest: extractedDigest,
-// 			} = JSON.parse(
-// 				execSync(
-// 					`sui move build --dump-bytecode-as-base64 --path ${path}/contracts/${name}`,
-// 					{
-// 						encoding: 'utf-8',
-// 					}
-// 				)
-// 			);
 
-// 			modules = extractedModules;
-// 			dependencies = extractedDependencies;
-// 			digest = extractedDigest;
-// 		} catch (error: any) {
-// 			throw new UpgradeError(error.stdout);
-// 		}
+}
 
-// 		const tx = new Transaction();
-// 		const ticket = tx.moveCall({
-// 			target: '0x2::package::authorize_upgrade',
-// 			arguments: [
-// 				tx.object(upgradeCap),
-// 				tx.pure.u8(UpgradePolicy.COMPATIBLE),
-// 				tx.pure.vector('u8', digest),
-// 			],
-// 		});
+function capitalizeAndRemoveUnderscores(input: string): string {
+	return input
+		.split('_')
+		.map((word, index) => {
+			return index === 0
+				? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+				: word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+		})
+		.join('');
+}
 
-// 		const receipt = tx.upgrade({
-// 			modules,
-// 			dependencies,
-// 			package: oldPackageId,
-// 			ticket,
-// 		});
+function getLastSegment(input: string): string {
+	const segments = input.split('::');
+	return segments.length > 0 ? segments[segments.length - 1] : '';
+}
 
-// 		tx.moveCall({
-// 			target: '0x2::package::commit_upgrade',
-// 			arguments: [tx.object(upgradeCap), receipt],
-// 		});
+export async function upgradeHandler(
+	config: DubheConfig,
+	name: string,
+	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet',
+) {
+	const path = process.cwd();
+	const projectPath = `${path}/contracts/${name}`;
+	const privateKey = process.env.PRIVATE_KEY;
+	if (!privateKey)
+		throw new DubheCliError(
+			`Missing PRIVATE_KEY environment variable.
+Run 'echo "PRIVATE_KEY=YOUR_PRIVATE_KEY" > .env'
+in your contracts directory to use the default sui private key.`
+		);
 
-// 		tx.transferObjects(
-// 			[tx.object(upgradeCap)],
-// 			keypair.toSuiAddress()
-// 		);
+	const privateKeyFormat = validatePrivateKey(privateKey);
+	if (privateKeyFormat === false) {
+		throw new DubheCliError(`Please check your privateKey.`);
+	}
+	const dubhe = new Dubhe({
+		secretKey: privateKeyFormat,
+	});
+	const keypair = dubhe.getKeypair();
 
-// 		const result = await client.signAndExecuteTransaction({
-// 			signer: keypair,
-// 			transaction: tx,
-// 			options: {
-// 				showObjectChanges: true,
-// 			},
-// 		});
+	const client = new SuiClient({
+		url: getFullnodeUrl(network),
+	});
 
-// 		console.log('');
-// 		console.log(`${name} WorldId: ${worldId}`);
+	let oldVersion = Number(await getVersion(projectPath, network));
+	let oldPackageId = await getOldPackageId(projectPath, network);
+	// let worldId = await getWorldId(projectPath, network);
+	let upgradeCap = await getUpgradeCap(projectPath, network);
+	// let adminCap = await getAdminCap(projectPath, network);
 
-// 		let newPackageId = '';
-// 		let newUpgradeCap = '';
-// 		result.objectChanges!.map(object => {
-// 			if (object.type === 'published') {
-// 				console.log(
-// 					chalk.blue(`${name} PackageId: ${object.packageId}`)
-// 				);
-// 				newPackageId = object.packageId;
-// 			}
-// 			if (
-// 				object.type === 'mutated' &&
-// 				object.objectType === '0x2::package::UpgradeCap'
-// 			) {
-// 				console.log(
-// 					chalk.blue(`${name} UpgradeCap: ${object.objectId}`)
-// 				);
-// 				newUpgradeCap = object.objectId;
-// 			}
-// 		});
+	let pendingMigration: Migration[] = [];
+	let schemas = await getOnchainSchemas(projectPath, network);
+	for (let schemaKey in config.schemas) {
+		schemas.forEach((schema) => {
+			if (capitalizeAndRemoveUnderscores(schemaKey) == getLastSegment(schema.name)) {
+				let migrate: Migration = { schemaName: '', fields: [] };
+				let fields: Field[] = [];
+				let isMigration = false;
+				for (const key in config.schemas[schemaKey].structure) {
+					if (!(key in schema.structure)) {
+						isMigration = true;
+						fields.push({
+							name: key,
+							type: config.schemas[schemaKey].structure[key],
+						})
+						schema.structure[key] = config.schemas[schemaKey].structure[key];
+					}
+				}
+				if (isMigration) {
+					migrate.schemaName = schemaKey;
+					migrate.fields = fields;
+					pendingMigration.push(migrate)
+				}
+			}
+		})
+	}
 
-// 		console.log(
-// 			chalk.green(`Upgrade Transaction Digest: ${result.digest}`)
-// 		);
 
-// 		saveContractData(
-// 			name,
-// 			network,
-// 			newPackageId,
-// 			worldId,
-// 			newUpgradeCap,
-// 			adminCap,
-// 			newVersion
-// 		);
+	pendingMigration.forEach((migration) => {
+		console.log(`\n🚀 Starting Migration for ${migration.schemaName}...`);
+		console.log('📋 Migration Fields:', migration.fields);
+	});
+	updateMigrateMethod(projectPath, pendingMigration);
 
-// 		oldPackageId = newPackageId;
-// 		upgradeCap = newUpgradeCap;
-// 		oldVersion = newVersion;
+	try {
+		let modules: any, dependencies: any, digest: any;
+		try {
+			const {
+				modules: extractedModules,
+				dependencies: extractedDependencies,
+				digest: extractedDigest,
+			} = JSON.parse(
+				execSync(
+					`sui move build --dump-bytecode-as-base64 --path ${path}/contracts/${name}`,
+					{
+						encoding: 'utf-8',
+					}
+				)
+			);
 
-// 		console.log('\nExecuting the migrate: ');
-// 		const delay = (ms: number) =>
-// 			new Promise(resolve => setTimeout(resolve, ms));
-// 		await delay(5000);
+			modules = extractedModules;
+			dependencies = extractedDependencies;
+			digest = extractedDigest;
+		} catch (error: any) {
+			throw new UpgradeError(error.stdout);
+		}
 
-// 		const migrateTx = new Transaction();
-// 		migrateTx.moveCall({
-// 			target: `${newPackageId}::migrate::run`,
-// 			arguments: [migrateTx.object(worldId), migrateTx.object(adminCap)],
-// 		});
+		console.log('\n🚀 Starting Upgrade Process...');
+		console.log('📋 OldPackageId:', oldPackageId);
+		console.log('📋 UpgradeCap Object Id:', upgradeCap);
+		console.log('📋 OldVersion:', oldVersion);
 
-// 		let newWorldObject = await client.getObject({
-// 			id: worldId,
-// 			options: {
-// 				showContent: true,
-// 				showDisplay: true,
-// 				showType: true,
-// 				showOwner: true,
-// 			},
-// 		});
-// 		let newObjectContent = newWorldObject.data!.content as ObjectContent;
+		const tx = new Transaction();
+		const ticket = tx.moveCall({
+			target: '0x2::package::authorize_upgrade',
+			arguments: [
+				tx.object(upgradeCap),
+				tx.pure.u8(UpgradePolicy.COMPATIBLE),
+				tx.pure.vector('u8', digest),
+			],
+		});
 
-// 		const uniqueSchema: string[] = schemaNames.filter(
-// 			item => !newObjectContent.fields['schema_names'].includes(item)
-// 		);
+		const receipt = tx.upgrade({
+			modules,
+			dependencies,
+			package: oldPackageId,
+			ticket,
+		});
 
-// 		console.log('new schema:', uniqueSchema);
-// 		let needRegisterSchema = [];
-// 		for (const newSchema of uniqueSchema) {
-// 			migrateTx.moveCall({
-// 				target: `${newPackageId}::${newSchema}_schema::register`,
-// 				arguments: [
-// 					migrateTx.object(worldId),
-// 					migrateTx.object(adminCap),
-// 				],
-// 			});
-// 			needRegisterSchema.push(`${newSchema}_schema`);
-// 		}
-// 		const migrateResult = await client.signAndExecuteTransaction({
-// 			signer: keypair,
-// 			transaction: migrateTx,
-// 			options: {
-// 				showEffects: true,
-// 			},
-// 		});
+		tx.moveCall({
+			target: '0x2::package::commit_upgrade',
+			arguments: [tx.object(upgradeCap), receipt],
+		});
 
-// 		if (migrateResult.effects?.status.status === 'success') {
-// 			console.log(
-// 				chalk.green(
-// 					`${name} migrate world success, new world version is: ${newObjectContent.fields['version']}, package version is ${newVersion}`
-// 				)
-// 			);
-// 			if (needRegisterSchema.length !== 0) {
-// 				console.log(
-// 					chalk.green(
-// 						`new schema: ${needRegisterSchema.toString()} register success.`
-// 					)
-// 				);
-// 			}
+		const result = await client.signAndExecuteTransaction({
+			signer: keypair,
+			transaction: tx,
+			options: {
+				showObjectChanges: true,
+			},
+		});
 
-// 			console.log(
-// 				chalk.blue(
-// 					`\n${name} world schemas is ${newObjectContent.fields['schema_names']}`
-// 				)
-// 			);
-// 		} else {
-// 			console.log(
-// 				chalk.red(
-// 					`${name} migrate world failed, world version is: ${newObjectContent.fields['version']}, package version is ${newVersion}`
-// 				)
-// 			);
-// 		}
-// 	} catch (error: any) {
-// 		console.log(chalk.red('Upgrade failed!'));
-// 		console.error(error.message);
+		let newPackageId = '';
+		result.objectChanges!.map(object => {
+			if (object.type === 'published') {
+				console.log(
+					chalk.blue(`${name} PackageId: ${object.packageId}`)
+				);
+				console.log(
+					chalk.blue(`${name} Version: ${oldVersion + 1}`)
+				);
+				newPackageId = object.packageId;
+			}
+		});
 
-// 		saveContractData(
-// 			name,
-// 			network,
-// 			oldPackageId,
-// 			worldId,
-// 			upgradeCap,
-// 			adminCap,
-// 			oldVersion
-// 		);
-// 		await updateVersionInFile(projectPath, oldVersion.toString());
-// 	}
-// }
+		console.log(
+			chalk.green(`Upgrade Transaction Digest: ${result.digest}`)
+		);
+
+		saveContractData(
+			name,
+			network,
+			newPackageId,
+			schemas,
+			upgradeCap,
+			oldVersion + 1
+		);
+
+	} catch (error: any) {
+		console.log(chalk.red('Upgrade failed!'));
+		console.error(error.message);
+	}
+}

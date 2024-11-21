@@ -1,30 +1,22 @@
 import { DubheConfig } from '../../types';
 import { formatAndWriteMove } from '../formatAndWrite';
 import { existsSync } from 'fs';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
 export async function generateSystem(config: DubheConfig, srcPrefix: string) {
 	console.log('\n⚙️ Starting System Generation...');
-	config.systems.map(async systemName => {
-		console.log(`  ├─ Generating system: ${systemName}`);
+		console.log(`  ├─ Generating systems`);
 		console.log(
-			`     └─ Output path: ${srcPrefix}/contracts/${config.name}/sources/system/${systemName}.move`
+			`     └─ Output path: ${srcPrefix}/contracts/${config.name}/sources/systems`
 		);
 
 		if (
 			!existsSync(
-				`${srcPrefix}/contracts/${config.name}/sources/system/${systemName}.move`
+				`${srcPrefix}/contracts/${config.name}/sources/systems`
 			)
 		) {
-			let code = `module ${config.name}::${systemName}_system {
-
-}
-`;
-			await formatAndWriteMove(
-				code,
-				`${srcPrefix}/contracts/${config.name}/sources/system/${systemName}.move`,
-				'formatAndWriteMove'
-			);
+			await fs.mkdir(`${srcPrefix}/contracts/${config.name}/sources/systems`, { recursive: true })
 		}
-	});
 	console.log('✅ System Generation Complete\n');
 }
