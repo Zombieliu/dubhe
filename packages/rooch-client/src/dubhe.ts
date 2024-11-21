@@ -245,12 +245,12 @@ export class Dubhe {
    * @description Get the address of the account for the given derivePathParams
    * @param derivePathParams, such as { accountIndex: 2, isExternal: false, addressIndex: 10 }, comply with the BIP44 standard
    */
-  getAddress(derivePathParams?: DerivePathParams) {
-    return this.accountManager.getAddress(derivePathParams);
+  getBech32Address(derivePathParams?: DerivePathParams) {
+    return this.accountManager.getAddress(derivePathParams).toBech32Address();
   }
 
   getRoochAddress(derivePathParams?: DerivePathParams) {
-    return this.accountManager.getAddress(derivePathParams).toBech32Address();
+    return this.accountManager.getAddress(derivePathParams);
   }
 
   getHexAddress(derivePathParams?: DerivePathParams) {
@@ -258,7 +258,7 @@ export class Dubhe {
   }
 
   getBitcoinAddress(derivePathParams?: DerivePathParams) {
-    return this.accountManager.getBitcoinAddress(derivePathParams).toStr();
+    return this.accountManager.getBitcoinAddress(derivePathParams);
   }
 
   currentAddress() {
@@ -292,7 +292,7 @@ export class Dubhe {
   ): Promise<BalanceInfoView | string> {
     try {
       if (accountAddress === undefined) {
-        accountAddress = this.getAddress().toStr();
+        accountAddress = this.getBech32Address();
       }
       if (coinType === undefined) {
         coinType = '0x3::gas_coin::RGas';
