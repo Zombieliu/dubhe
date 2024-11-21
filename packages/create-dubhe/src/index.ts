@@ -34,36 +34,19 @@ const init = async () => {
 			choices: [
 				{ title: '101', description: 'Quick start', value: '101' },
 				{ title: 'Web', description: 'Web template', value: 'web' },
-				{
-					title: 'Cocos',
-					description: 'Cocos Creator',
-					value: 'cocos',
-				},
+				{ title: 'Contract', description: 'Contract template', value: 'contract' },
+				{ title: 'Cocos', description: 'Cocos Creator', value: 'cocos' },
 			],
 			initial: 0,
 		},
-		{
-			type: 'select',
-			name: 'framework',
-			message: 'Pick your framework.',
-			choices: (platform: string) => {
-				if (platform === '101') {
-					return [{ title: 'Nextjs', value: 'nextjs' }];
-				} else if (platform === 'web') {
-					return [{ title: 'Nextjs', value: 'nextjs' }];
-				} else if (platform === 'cocos') {
-					return [{ title: 'Typescript', value: 'ts' }];
-				}
-				return null;
-			},
-			initial: 0,
-		},
 	]);
-	const { projectName, chain, platform, framework } = response;
+	const { projectName, chain, platform } = response;
 	let target = '';
 
 	if (platform === '101') {
 		target = `template/101/${chain}-template`;
+	} else if (platform === 'contract') {
+		target = `template/contract/${chain}-template`;
 	} else if (platform === 'web') {
 		target = `template/nextjs/${chain}-template`;
 	} else {
@@ -134,6 +117,8 @@ const init = async () => {
 	if (platform == '101') {
 		console.log(`  ${pkgManager} install`);
 		console.log(`  ${pkgManager} run dev`);
+	} else if (platform == 'contract') {
+		console.log(`  ${pkgManager} install`);
 	} else if (platform == 'web') {
 		console.log(`  ${pkgManager} install`);
 		console.log(`  ${pkgManager} run dev`);
