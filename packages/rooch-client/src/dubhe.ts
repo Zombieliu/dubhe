@@ -285,27 +285,6 @@ export class Dubhe {
     return this.roochInteractor.getChainId();
   }
 
-  // /**
-  //  * Request some APT from faucet
-  //  * @Returns {Promise<boolean>}, true if the request is successful, false otherwise.
-  //  */
-  // async requestFaucet(
-  //   network: NetworkType,
-  //   accountAddress?: string,
-  //   amount?: number
-  // ) {
-  //   if (network === Network.MAINNET) {
-  //     return false;
-  //   }
-  //   if (accountAddress === undefined) {
-  //     accountAddress = this.getAddress();
-  //   }
-  //   if (amount === undefined) {
-  //     amount = 50000000;
-  //   }
-  //   return this.aptosInteractor.requestFaucet(network, accountAddress, amount);
-  // }
-
   async getBalance(
     accountAddress?: string,
     coinType?: string,
@@ -368,6 +347,50 @@ export class Dubhe {
       signer = this.getSigner(derivePathParams);
     }
     return this.roochInteractor.createSession(sessionArgs, signer);
+  }
+
+  async moveCall(callParams: {
+    target: string;
+    params?: Args[];
+    typeArguments?: TypeTag[];
+    signer?: Secp256k1Keypair;
+    derivePathParams?: DerivePathParams;
+  }) {
+    const {
+      target,
+      params = [],
+      typeArguments = [],
+      signer,
+      derivePathParams,
+    } = callParams;
+
+    const effectiveSigner = signer ?? this.getSigner(derivePathParams);
+    console.log('effectiveSigner', effectiveSigner.getRoochAddress().toStr());
+    const tx = new Transaction();
+    tx.callFunction({
+      target,
+      args: params,
+      typeArgs: typeArguments,
+    });
+    return this.signAndExecuteTransaction(
+      tx,
+      effectiveSigner,
+      derivePathParams
+    );
+  }
+
+  async publishPackage(callParams: {
+    packageBytes: Uint8Array;
+    signer?: Secp256k1Keypair;
+    derivePathParams?: DerivePathParams;
+  }) {
+    const { packageBytes, signer, derivePathParams } = callParams;
+    return this.moveCall({
+      target: `0x2::module_store::publish_package_entry`,
+      params: [Args.vec('u8', Array.from(packageBytes))],
+      signer,
+      derivePathParams,
+    });
   }
 
   async getStates(params: GetStatesParams): Promise<ObjectStateView[]> {

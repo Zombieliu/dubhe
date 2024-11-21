@@ -27,12 +27,9 @@ import { delay } from './util';
  * and update the gas coin after the transaction.
  */
 export class RoochInteractor {
-  // public readonly providers: Provider[];
-  // public currentProvider: Provider;
   public currentClient: RoochClient;
   public clients: RoochClient[];
   public network?: NetWorkType;
-  // public indexerClient?: IndexerClient;
 
   constructor(fullNodeUrls: string[], network?: NetWorkType) {
     if (fullNodeUrls.length === 0)
@@ -190,30 +187,6 @@ export class RoochInteractor {
     }
     throw new Error(`Failed to get balance with all fullnodes`);
   }
-
-  // async requestFaucet(
-  //   network: NetworkType,
-  //   accountAddress: string,
-  //   amount: number
-  // ) {
-  //   const defaultUrl = getRoochNodeUrl(network);
-  //   if (defaultUrl.faucet === undefined) {
-  //     return false;
-  //   }
-
-  //   try {
-  //     const faucetClient = new FaucetClient(
-  //       defaultUrl.fullNode,
-  //       defaultUrl.faucet
-  //     );
-
-  //     await faucetClient.fundAccount(accountAddress, amount);
-  //     return true;
-  //   } catch (err) {
-  //     console.warn(`Failed to fund token with faucetClient: ${err}`);
-  //   }
-  //   return false;
-  // }
 
   async getRpcApiVersion(): Promise<string | undefined> {
     for (const client of this.clients) {

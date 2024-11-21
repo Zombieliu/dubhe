@@ -9,7 +9,7 @@ export const delay = (ms: number) =>
 async function init() {
   const network = 'localnet' as NetWorkType;
   const packageId =
-    '0x2685679ac55d5b2f2a9093e50f4ef10b40c68bc2a5d848b07bc81f7c9d1c069d';
+    '0x4dc496689f0f22bfb659631aed85466fed8773bc05cc3d07044d8c5ebc0996a5';
   const metadata = await loadMetadata(network, packageId, ['counter']);
   const privateKey = process.env.PRIVATE_KEY;
   const dubhe = new Dubhe({
