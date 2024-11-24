@@ -10,7 +10,7 @@ import {
 	getVersion,
 	getUpgradeCap,
 	saveContractData,
-	validatePrivateKey, getOnchainSchemas,
+	validatePrivateKey, getOnchainSchemas, getSchemaHub,
 } from './utils';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -51,11 +51,7 @@ ${migration.fields.map((field) => {
 			) {
 				storage_type = `storage_double_map::new()`;
 			}
-
-			return `
-    df::add<String, ${field.type}>(&mut assets.id, string(b"${field.name}"), ${storage_type});
-`;
-		}).join('')}
+			return `storage_migrate::add_field<${field.type}>(&mut assets.id, b"${field.name}", ${storage_type});`}).join('')}
 }
 `;
 
@@ -112,7 +108,7 @@ in your contracts directory to use the default sui private key.`
 
 	let oldVersion = Number(await getVersion(projectPath, network));
 	let oldPackageId = await getOldPackageId(projectPath, network);
-	// let worldId = await getWorldId(projectPath, network);
+	let schemaHub = await getSchemaHub(projectPath, network);
 	let upgradeCap = await getUpgradeCap(projectPath, network);
 	// let adminCap = await getAdminCap(projectPath, network);
 
@@ -229,9 +225,10 @@ in your contracts directory to use the default sui private key.`
 			name,
 			network,
 			newPackageId,
-			schemas,
 			upgradeCap,
-			oldVersion + 1
+			schemaHub,
+			oldVersion + 1,
+			schemas,
 		);
 
 	} catch (error: any) {

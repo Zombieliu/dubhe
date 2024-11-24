@@ -7,17 +7,18 @@ import { generateDeployHook, generateMigrate } from './generateScript';
 import { generateDappKey } from './generateDappKey';
 import {generateSchemaEvent} from "./generateEvent";
 import { generateSystem } from './generateSystem';
+import { generateSchemaHub } from './generateSchemaHub';
 
 function matchFrameworkId(
 	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet'
 ): string {
 	switch (network) {
 		case 'testnet':
-			return '0x1736475f476c5dec96f33c03c778843f572239d3a887d795eef66d2836484c28';
+			return '0x417ad1864a56a29ad0b5aaddd2e11bac1eeab6a68883ef53184a4cc5c293fec6';
 		case 'localnet':
-			return '0x1736475f476c5dec96f33c03c778843f572239d3a887d795eef66d2836484c28';
+			return '0x417ad1864a56a29ad0b5aaddd2e11bac1eeab6a68883ef53184a4cc5c293fec6';
 		default:
-			return '0x1736475f476c5dec96f33c03c778843f572239d3a887d795eef66d2836484c28';
+			return '0x417ad1864a56a29ad0b5aaddd2e11bac1eeab6a68883ef53184a4cc5c293fec6';
 	}
 }
 
@@ -66,6 +67,7 @@ export async function schemaGen(
 	await generateSchemaStructure(config.name, config.schemas, path, config.migration_enabled);
 	await generateSchemaEvent(config.name, config.schemas, path);
 	await generateDappKey(config, path);
+	await generateSchemaHub(config, path);
 	await generateSystem(config, path);
 	if (config.migration_enabled) {
 		await generateMigrate(config, path);
