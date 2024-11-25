@@ -71,9 +71,10 @@ export interface MessageMeta {
 }
 
 export interface ContractQuery extends MessageMeta {
-  (params?: any[], typeArguments?: TypeTag[]): Promise<
-    AnnotatedFunctionResultView[]
-  >;
+  (
+    params?: any[],
+    typeArguments?: TypeTag[]
+  ): Promise<AnnotatedFunctionResultView>;
 }
 
 export interface ContractTx extends MessageMeta {
