@@ -17,7 +17,7 @@
     "// Development Environment": "----------------",
     "dev": "pnpm dev:localnet",
     "dev:localnet": "pnpm setup:localnet && pnpm next",
-    "dev:testnet": "pnpm testnet:setup && pnpm next",
+    "dev:testnet": "pnpm setup:testnet && pnpm next",
     "setup:localnet": "pnpm account:gen && pnpm faucet localnet && pnpm deploy:localnet",
     "setup:testnet": "pnpm account:gen && pnpm check-balance testnet && pnpm deploy:testnet",
     "build": "next build",
@@ -27,9 +27,9 @@
     "prod:testnet": "pnpm config:store testnet && pnpm next"
   },
   "dependencies": {
-    "@0xobelisk/sui-cli": "^0.5.23",
-    "@0xobelisk/sui-client": "^0.5.27",
-    "@0xobelisk/sui-common": "^0.5.19",
+    "@0xobelisk/sui-cli": "^0.5.24",
+    "@0xobelisk/sui-client": "v0.5.28",
+    "@0xobelisk/sui-common": "^0.5.20",
     "@mysten/dapp-kit": "0.14.9",
     "@mysten/sui": "1.7.0",
     "dotenv": "^16.4.5",

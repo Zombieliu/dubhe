@@ -5,10 +5,11 @@ export const dubheConfig = {
   description: 'counter contract',
   systems: ['counter'],
   schemas: {
-    te: {
+    counter: {
       structure: {
         value: "StorageValue<u32>"
       }
     },
   },
+  migration_enabled: true,
 } as DubheConfig;
