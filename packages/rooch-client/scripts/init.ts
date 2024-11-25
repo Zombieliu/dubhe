@@ -31,6 +31,9 @@ async function init() {
   console.log('======= query counter value ========');
   let counter = await dubhe.query.counter.value();
   console.log(counter);
+  if (counter.return_values) {
+    console.log(counter.return_values[0].decoded_value);
+  }
 
   console.log('======= increase counter value ========');
   const tx = new Transaction();

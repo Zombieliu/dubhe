@@ -21,13 +21,15 @@ import {
 import { delay } from './util';
 
 /**
- * `SuiTransactionSender` is used to send transaction with a given gas coin.
+ * `RoochTransaction` is used to send transaction with a given gas coin.
  * It always uses the gas coin to pay for the gas,
  * and update the gas coin after the transaction.
  */
 export class RoochInteractor {
+  public readonly clients: RoochClient[];
   public currentClient: RoochClient;
-  public clients: RoochClient[];
+  public readonly fullNodes: string[];
+  public currentFullNode: string;
   public network?: NetworkType;
 
   constructor(fullNodeUrls: string[], network?: NetworkType) {
@@ -35,6 +37,8 @@ export class RoochInteractor {
       throw new Error('fullNodeUrls must not be empty');
     this.clients = fullNodeUrls.map((url) => new RoochClient({ url }));
     this.currentClient = this.clients[0];
+    this.fullNodes = fullNodeUrls;
+    this.currentFullNode = fullNodeUrls[0];
 
     this.network = network;
   }
@@ -43,6 +47,8 @@ export class RoochInteractor {
     const currentClientIdx = this.clients.indexOf(this.currentClient);
     this.currentClient =
       this.clients[(currentClientIdx + 1) % this.clients.length];
+    this.currentFullNode =
+      this.fullNodes[(currentClientIdx + 1) % this.clients.length];
   }
 
   async createSession(
