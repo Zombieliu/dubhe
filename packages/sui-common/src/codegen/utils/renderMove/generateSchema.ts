@@ -7,7 +7,7 @@ import {
 	getStructAttrsQuery,
 } from './common';
 
-function capitalizeAndRemoveUnderscores(input: string): string {
+export function capitalizeAndRemoveUnderscores(input: string): string {
 	return input
 		.split('_')
 		.map((word, index) => {
@@ -204,6 +204,7 @@ export async function generateSchemaStructure(
                     use sui::package::UpgradeCap;
                     use std::type_name;
                     use dubhe::dapps_system;
+                    use dubhe::storage_migrate;
                     use dubhe::dapps_schema::Dapps;
                     use dubhe::storage_value::{Self, StorageValue};
                     use dubhe::storage_map::{Self, StorageMap};
@@ -223,32 +224,22 @@ export async function generateSchemaStructure(
 								return `public fun borrow_${key}(self: &${capitalizeAndRemoveUnderscores(
 									schemaName
 								)}) : &${value} {
-                        df::borrow(&self.id, string(b"${key}"))
+                        storage_migrate::borrow_field(&self.id, b"${key}")
                     }
                     
                     public(package) fun borrow_mut_${key}(self: &mut ${capitalizeAndRemoveUnderscores(
 						schemaName
 					)}): &mut ${value} {
-                        df::borrow_mut(&mut self.id, string(b"${key}"))
+                        storage_migrate::borrow_mut_field(&mut self.id, b"${key}")
                     }
                     `;
 							})
 							.join('')} 
                      
            
-                    public fun register(dapps: &mut Dapps, ctx: &mut TxContext): ${capitalizeAndRemoveUnderscores(
+                    public(package) fun create(ctx: &mut TxContext): ${capitalizeAndRemoveUnderscores(
 						schemaName
 					)} {
-                      let package_id = dapps_system::current_package_id<DappKey>();
-                      assert!(dapps.borrow_metadata().contains_key(package_id), 0);
-                      assert!(dapps.borrow_admin().get(package_id) == ctx.sender(), 0);
-                      let schema = type_name::get<${capitalizeAndRemoveUnderscores(
-							schemaName
-						)}>().into_string();
-                      assert!(!dapps.borrow_schemas().get(package_id).contains(&schema), 0);
-                      dapps_system::add_schema<${capitalizeAndRemoveUnderscores(
-							schemaName
-						)}>(dapps, package_id, ctx);
                       let mut id = object::new(ctx);
                       ${Object.entries(schema.structure)
 											.map(([key, value]) => {
@@ -262,9 +253,7 @@ export async function generateSchemaStructure(
 												) {
 													storage_type = `storage_double_map::new()`;
 												}
-												return `if(!df::exists_(&id, string(b"${key}"))) {
-												df::add<String, ${value}>(&mut id, string(b"${key}"), ${storage_type});
-												};`
+												return `storage_migrate::add_field<${value}>(&mut id, b"${key}", ${storage_type});`
 											})
 											.join('')}
                       
