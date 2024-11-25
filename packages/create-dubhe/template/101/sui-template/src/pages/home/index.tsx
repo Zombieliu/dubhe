@@ -61,7 +61,7 @@ const Home = () => {
     <div className="max-w-7xl mx-auto text-center py-12 px-4 sm:px-6 lg:py-16 lg:px-8 flex-6">
       <div className="flex flex-col gap-6 mt-12">
         <div className="flex flex-col gap-4">
-          You account already have some sui from testnet
+          You account already have some sui from {NETWORK}
           <div className="flex flex-col gap-6 text-2xl text-green-600 mt-6 ">Counter: {value}</div>
           <div className="flex flex-col gap-6">
             <button
