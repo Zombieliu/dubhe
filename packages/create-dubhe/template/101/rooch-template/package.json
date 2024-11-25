@@ -26,9 +26,9 @@
     "prod:testnet": "pnpm config:store testnet && pnpm next"
   },
   "dependencies": {
-    "@0xobelisk/rooch-client": "^0.0.2",
+    "@0xobelisk/rooch-client": "^0.0.3",
     "@0xobelisk/rooch-cli": "^0.0.1",
-    "@0xobelisk/sui-common": "^0.5.19",
+    "@0xobelisk/sui-common": "^0.5.20",
     "clsx": "^1.2.1",
     "dotenv": "^16.4.5",
     "framer-motion": "^10.12.16",

@@ -1,6 +1,6 @@
 {
   "name": "@0xobelisk/rooch-client",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Tookit for interacting with rooch move framework",
   "keywords": [
     "rooch",
@@ -22,7 +22,7 @@
   "engines": {
     "node": ">=18"
   },
-  "main": "./dist/index.cjs",
+  "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
