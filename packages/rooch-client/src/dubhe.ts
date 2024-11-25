@@ -288,6 +288,14 @@ export class Dubhe {
     return this.contractFactory.metadata;
   }
 
+  getNetwork() {
+    return this.roochInteractor.network;
+  }
+
+  getFullNodeUrl() {
+    return this.roochInteractor.currentFullNode;
+  }
+
   async getRpcApiVersion(): Promise<string | undefined> {
     return this.roochInteractor.getRpcApiVersion();
   }
