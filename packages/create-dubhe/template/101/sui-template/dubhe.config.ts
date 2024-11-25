@@ -11,4 +11,5 @@ export const dubheConfig = {
       },
     },
   },
+  migration_enabled: true,
 } as DubheConfig;
