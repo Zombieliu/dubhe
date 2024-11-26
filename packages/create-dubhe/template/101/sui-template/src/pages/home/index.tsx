@@ -1,10 +1,31 @@
-import { loadMetadata, Dubhe, Transaction, TransactionResult, DevInspectResults } from '@0xobelisk/sui-client';
+import {
+  loadMetadata,
+  Dubhe,
+  Transaction,
+  TransactionResult,
+  DevInspectResults,
+  NetworkType,
+} from '@0xobelisk/sui-client';
 import { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { Value } from '../../jotai';
 import { useRouter } from 'next/router';
 import { Counter_Object_Id, NETWORK, PACKAGE_ID } from '../../chain/config';
 import { PRIVATEKEY } from '../../chain/key';
+import { toast } from 'sonner';
+
+function getExplorerUrl(network: NetworkType, digest: string) {
+  switch (network) {
+    case 'testnet':
+      return `https://explorer.polymedia.app/txblock/${digest}?network=${network}`;
+    case 'mainnet':
+      return `https://suiscan.xyz/tx/${digest}`;
+    case 'devnet':
+      return `https://explorer.polymedia.app/txblock/${digest}?network=${network}`;
+    case 'localnet':
+      return `https://explorer.polymedia.app/txblock/${digest}?network=local`;
+  }
+}
 
 const Home = () => {
   const router = useRouter();
@@ -19,11 +40,10 @@ const Home = () => {
       metadata: metadata,
     });
     const tx = new Transaction();
-    console.log('counterObjectId:', Counter_Object_Id);
     const query_value = (await dubhe.query.counter_schema.get_value(tx, [
       tx.object(Counter_Object_Id),
     ])) as DevInspectResults;
-    console.log(dubhe.view(query_value)[0]);
+    console.log('Counter value:', dubhe.view(query_value)[0]);
     setValue(dubhe.view(query_value)[0]);
   };
 
@@ -43,10 +63,20 @@ const Home = () => {
       if (response.effects.status.status == 'success') {
         setTimeout(async () => {
           await query_counter_value();
+          console.log(response);
+          console.log(response.digest);
+          toast('Transfer Successful', {
+            description: new Date().toUTCString(),
+            action: {
+              label: 'Check in Explorer',
+              onClick: () => window.open(getExplorerUrl(NETWORK, response.digest), '_blank'),
+            },
+          });
           setLoading(false);
         }, 200);
       }
     } catch (error) {
+      toast.error('Transaction failed. Please try again.');
       setLoading(false);
       console.error(error);
     }
