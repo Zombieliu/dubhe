@@ -13,10 +13,10 @@
 		"schema:gen": "pnpm dubhe schemagen",
 		"account:gen": "NODE_NO_WARNINGS=1 ts-node scripts/generateAccount.ts",
 		"check-balance": "NODE_NO_WARNINGS=1 ts-node scripts/checkBalance.ts",
-		"deploy:framework": "pnpm dubhe publish --network localnet --contractName dubhe-framework"
+		"deploy:framework": "pnpm dubhe publish --network localnet --contract-name dubhe-framework"
 	},
 	"dependencies": {
-		"@0xobelisk/sui-cli": "^0.5.28",
+		"@0xobelisk/sui-cli": "^0.5.29",
 		"@0xobelisk/sui-client": "^0.5.28",
 		"@0xobelisk/sui-common": "^0.5.22",
 		"dotenv": "^16.4.5",

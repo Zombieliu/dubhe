@@ -5,8 +5,8 @@ import { loadConfig, DubheConfig } from '@0xobelisk/sui-common';
 
 type Options = {
 	network: any;
-	configPath: string;
-	contractName?: string;
+	'config-path': string;
+	'contract-name'?: string;
 };
 
 const commandModule: CommandModule<Options, Options> = {
@@ -21,23 +21,25 @@ const commandModule: CommandModule<Options, Options> = {
 				choices: ['mainnet', 'testnet', 'devnet', 'localnet'],
 				desc: 'Node network (mainnet/testnet/devnet/localnet)',
 			},
-			configPath: {
+			'config-path': {
 				type: 'string',
 				default: 'dubhe.config.ts',
 				desc: 'Configuration file path',
 			},
-			contractName: {
+			'contract-name': {
 				type: 'string',
-				desc: 'Optional contract name',
+				desc: 'Optional contract name in contracts/ directory',
 			},
 		});
 	},
 
-	async handler({ network, configPath, contractName }) {
+	async handler({
+		network,
+		'config-path': configPath,
+		'contract-name': contractName,
+	}) {
 		try {
-			const dubheConfig = (await loadConfig(
-				configPath
-			)) as DubheConfig;
+			const dubheConfig = (await loadConfig(configPath)) as DubheConfig;
 			await publishHandler(dubheConfig, network, contractName);
 		} catch (error: any) {
 			logError(error);

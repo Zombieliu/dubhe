@@ -5,7 +5,7 @@ The Dubhe CLI is used for building and developing a Dubhe project.
 It comes with
 
 
-1. `schemagen <configPath>`: Autogenerate Dubhe schemas based on the store schemas config file
+1. `schemagen`: Autogenerate Dubhe schemas based on the store schemas config file
 2. `publish`: Deploy your own project on the specified sui network.
 3. `upgrade`: Upgrade your own project on the specified sui network.
 4. `localnode`: Start a local Sui node for development
@@ -31,7 +31,7 @@ Generates Store libraries from a `dubhe.config.ts` file. See the [Store Config a
 
 ```bash
 # in a folder with a dubhe.config.ts
-dubhe schemagen dubhe.config.ts
+dubhe schemagen --config-path dubhe.config.ts
 ```
 
 ### `publish`

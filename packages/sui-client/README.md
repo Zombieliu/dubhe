@@ -35,7 +35,7 @@ export const dubheConfig = {
 Generate the contract code using CLI:
 
 ```bash
-dubhe schemagen --configPath dubhe.config.ts
+dubhe schemagen --config-path dubhe.config.ts
 ```
 
 ### Initializing the Client

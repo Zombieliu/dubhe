@@ -4,7 +4,7 @@ import { execSync } from 'child_process';
 import chalk from 'chalk';
 
 type Options = {
-	configPath: string;
+	'config-path': string;
 };
 
 const commandModule: CommandModule<Options, Options> = {
@@ -14,7 +14,7 @@ const commandModule: CommandModule<Options, Options> = {
 
 	builder(yargs) {
 		return yargs.options({
-			configPath: {
+			'config-path': {
 				type: 'string',
 				default: 'dubhe.config.ts',
 				desc: 'Path to the config file',
@@ -22,7 +22,7 @@ const commandModule: CommandModule<Options, Options> = {
 		});
 	},
 
-	async handler({ configPath }) {
+	async handler({ 'config-path': configPath }) {
 		const dubheConfig = (await loadConfig(configPath)) as DubheConfig;
 
 		// Start an internal anvil process if no world address is provided

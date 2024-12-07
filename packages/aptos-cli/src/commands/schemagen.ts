@@ -7,12 +7,16 @@ type Options = {
 };
 
 const commandModule: CommandModule<Options, Options> = {
-	command: 'schemagen <config-path>',
+	command: 'schemagen',
 
 	describe: 'Autogenerate Dubhe schemas based on the config file',
 
-	builder(yargs) {
-		return yargs.options({});
+	builder: {
+		'config-path': {
+			type: 'string',
+			default: 'dubhe.config.ts',
+			desc: 'Path to the config file',
+		},
 	},
 
 	async handler({ 'config-path': configPath }) {

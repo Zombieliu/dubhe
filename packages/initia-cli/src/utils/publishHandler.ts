@@ -8,7 +8,8 @@ import { DubheConfig } from '@0xobelisk/sui-common';
 
 export async function publishHandler(
 	dubheConfig: DubheConfig,
-	network: NetworkType
+	network: NetworkType,
+	namedAddresses?: { name: string; address: string }[]
 ) {
 	const privateKey = process.env.PRIVATE_KEY;
 	if (!privateKey)
@@ -28,10 +29,29 @@ export async function publishHandler(
 		secretKey: privateKeyFormat,
 	});
 
+	let additionalNamedAddresses: [string, string][];
+	if (namedAddresses === undefined) {
+		additionalNamedAddresses = [[dubheConfig.name, client.getHexAddress()]];
+	} else {
+		additionalNamedAddresses = namedAddresses.map(item => [
+			item.name,
+			item.address,
+		]);
+		const existingProjectAddress = namedAddresses.find(
+			item => item.name === dubheConfig.name
+		);
+		if (!existingProjectAddress) {
+			additionalNamedAddresses.push([
+				dubheConfig.name,
+				client.getHexAddress(),
+			]);
+		}
+	}
+
 	const path = process.cwd();
 	const contractPath = `${path}/contracts/${dubheConfig.name}`;
 	const builder = new MoveBuilder(contractPath, {
-		additionalNamedAddresses: [[dubheConfig.name, client.getHexAddress()]],
+		additionalNamedAddresses,
 	});
 
 	try {

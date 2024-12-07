@@ -14,7 +14,7 @@
     "account:gen": "NODE_NO_WARNINGS=1 ts-node scripts/generateAccount.ts",
     "config:store": "ts-node scripts/storeConfig.ts",
     "check-balance": "NODE_NO_WARNINGS=1 ts-node scripts/checkBalance.ts",
-    "deploy:framework": "pnpm dubhe publish --network localnet --contractName dubhe-framework",
+    "deploy:framework": "pnpm dubhe publish --network localnet --contract-name dubhe-framework",
     "// Development Environment": "----------------",
     "dev": "pnpm dev:localnet",
     "dev:localnet": "pnpm setup:localnet && pnpm next",
@@ -28,7 +28,7 @@
     "prod:testnet": "pnpm config:store testnet && pnpm next"
   },
   "dependencies": {
-    "@0xobelisk/sui-cli": "^0.5.28",
+    "@0xobelisk/sui-cli": "^0.5.29",
     "@0xobelisk/sui-client": "v0.5.28",
     "@0xobelisk/sui-common": "^0.5.22",
     "@mysten/dapp-kit": "0.14.9",

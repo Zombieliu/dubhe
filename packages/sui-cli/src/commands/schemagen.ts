@@ -3,9 +3,9 @@ import { schemaGen, loadConfig, DubheConfig } from '@0xobelisk/sui-common';
 import chalk from 'chalk';
 
 type Options = {
-	configPath?: string;
+	'config-path'?: string;
 	network?: 'mainnet' | 'testnet' | 'devnet' | 'localnet';
-	frameworkId?: string;
+	'framework-id'?: string;
 };
 
 const commandModule: CommandModule<Options, Options> = {
@@ -14,7 +14,7 @@ const commandModule: CommandModule<Options, Options> = {
 	describe: 'Autogenerate Dubhe schemas based on the config file',
 
 	builder: {
-		configPath: {
+		'config-path': {
 			type: 'string',
 			default: 'dubhe.config.ts',
 			desc: 'Path to the config file',
@@ -24,17 +24,19 @@ const commandModule: CommandModule<Options, Options> = {
 			choices: ['mainnet', 'testnet', 'devnet', 'localnet'] as const,
 			desc: 'Node network (mainnet/testnet/devnet/localnet)',
 		},
-		frameworkId: {
+		'framework-id': {
 			type: 'string',
 			desc: 'Framework Package ID',
 		},
 	},
 
-	async handler({ configPath, network, frameworkId }) {
+	async handler({
+		'config-path': configPath,
+		network,
+		'framework-id': frameworkId,
+	}) {
 		try {
-			const dubheConfig = (await loadConfig(
-				configPath
-			)) as DubheConfig;
+			const dubheConfig = (await loadConfig(configPath)) as DubheConfig;
 			await schemaGen(dubheConfig, undefined, network, frameworkId);
 			process.exit(0);
 		} catch (error: any) {

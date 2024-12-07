@@ -8,14 +8,14 @@
 		"dev": "pnpm dubhe hello && pnpm start-template",
 		"start-template": "pnpm generateAccount && pnpm faucet && pnpm dapp-publish && pnpm storeConfig",
 		"faucet": "pnpm dubhe faucet --network testnet",
-		"schemagen": "pnpm dubhe schemagen dubhe.config.ts",
-		"dapp-publish": "pnpm dubhe publish --network testnet --configPath ./assets/Scripts/dubhe.config.ts && ts-node scripts/storeConfig.ts testnet",
+		"schemagen": "pnpm dubhe schemagen --config-path ./dubhe.config.ts",
+		"dapp-publish": "pnpm dubhe publish --network testnet --config-path ./assets/Scripts/dubhe.config.ts && ts-node scripts/storeConfig.ts testnet",
 		"upgrade": "pnpm dubhe upgrade --network testnet && ts-node scripts/storeConfig.ts testnet",
 		"storeConfig": "ts-node scripts/storeConfig.ts testnet",
 		"generateAccount": "ts-node scripts/generateAccount.ts"
 	},
 	"dependencies": {
-		"@0xobelisk/sui-cli": "^0.5.28",
+		"@0xobelisk/sui-cli": "^0.5.29",
 		"@0xobelisk/sui-client": "v0.5.28",
 		"@0xobelisk/sui-common": "^0.5.22"
 	},

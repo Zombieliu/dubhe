@@ -5,7 +5,8 @@ import { loadConfig, DubheConfig } from '@0xobelisk/sui-common';
 
 type Options = {
 	network: any;
-	configPath: string;
+	'config-path': string;
+	'named-addresses'?: string;
 };
 
 const commandModule: CommandModule<Options, Options> = {
@@ -20,18 +21,38 @@ const commandModule: CommandModule<Options, Options> = {
 				choices: ['mainnet', 'testnet', 'devnet', 'localnet'],
 				desc: 'Node network (mainnet/testnet/devnet/localnet)',
 			},
-			configPath: {
+			'config-path': {
 				type: 'string',
 				default: 'dubhe.config.ts',
 				desc: 'Configuration file path',
 			},
+			'named-addresses': {
+				type: 'string',
+				desc: 'Named addresses in format "name1=address1,name2=address2"',
+				optional: true,
+			},
 		});
 	},
 
-	async handler({ network, configPath }) {
+	async handler({
+		network,
+		'config-path': configPath,
+		'named-addresses': namedAddresses,
+	}) {
 		try {
 			const dubheConfig = (await loadConfig(configPath)) as DubheConfig;
-			await publishHandler(dubheConfig, network);
+
+			const parsedAddresses = namedAddresses
+				? namedAddresses.split(',').map(pair => {
+						const [name, address] = pair.split('=');
+						return {
+							name,
+							address,
+						};
+				  })
+				: undefined;
+
+			await publishHandler(dubheConfig, network, parsedAddresses);
 		} catch (error: any) {
 			logError(error);
 			process.exit(1);
