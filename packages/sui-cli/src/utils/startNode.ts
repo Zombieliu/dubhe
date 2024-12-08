@@ -36,14 +36,14 @@ async function printAccounts() {
 		const keypair = dubhe.getKeypair();
 		spawn(
 			'curl',
-			['--location', '--request', 'POST', 'http://127.0.0.1:9123/gas', 'http://127.0.0.1:9123/gas', '--header', 'Content-Type: application/json', '--data-raw', `{"FixedAmountRequest": {"recipient": "${keypair.toSuiAddress()}"}}`],
+			['--location', '--request', 'POST', 'http://127.0.0.1:9123/gas', '--header', 'Content-Type: application/json', '--data-raw', `{"FixedAmountRequest": {"recipient": "${keypair.toSuiAddress()}"}}`],
 			{
 				env: { ...process.env },
 				stdio: 'ignore',
 				detached: true,
 			}
 			)
-		console.log(`  ┌─ Account #${index}: ${keypair.toSuiAddress()}(2000 SUI)`);
+		console.log(`  ┌─ Account #${index}: ${keypair.toSuiAddress()}(1000 SUI)`);
 		console.log(`  └─ Private Key: ${privateKey}`);
 	});
 	console.log("==========")
