@@ -95,20 +95,11 @@ async function printAccounts() {
 
 		const dubhe = new Dubhe({ secretKey: privateKeyFormat });
 		const client = new SuiClient({ url: getFullnodeUrl('localnet') });
-		const originalLog = console.log; // 保存原始 console.log
-		const originalError = console.error; // 保存原始 console.error
-		const originalInfo = console.info; // 保存原始 console.error
-		const originalDebug = console.debug; // 保存原始 console.error
+		const originalLog = console.log;
 
 		console.log = () => {};
-		console.error = () => {}; // 重写 console.error，禁用输出
-		console.info = () => {}; // 重写 console.error，禁用输出
-		console.debug = () => {}; // 重写 console.error，禁用输出
 		await publishDubheFramework(client, dubhe, 'localnet');
-		console.log = originalLog; // 恢复 console.log
-		console.error = originalError; // 恢复 console.error
-		console.info = originalInfo; // 恢复 console.error
-		console.debug = originalDebug; // 恢复 console.error
+		console.log = originalLog;
 
 		process.on('SIGINT', () => {
 			console.log(chalk.yellow('\n🔔 Stopping Local Node...'));
