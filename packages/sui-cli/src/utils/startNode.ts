@@ -1,8 +1,9 @@
 import { execSync, spawn } from 'child_process';
 import chalk from 'chalk';
 import { printDubhe } from './printDubhe';
-import { delay } from '../utils';
+import { delay, DubheCliError, publishDubheFramework, validatePrivateKey } from '../utils';
 import { Dubhe } from '@0xobelisk/sui-client';
+import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
 
 function isSuiStartRunning(): boolean {
 	try {
@@ -86,8 +87,28 @@ async function printAccounts() {
 		await printAccounts();
 
 		await delay(2000);
-		const command = `pnpm dubhe publish --network localnet --contract-name dubhe-framework --private-key suiprivkey1qzez45sjjsepjgtksqvpq6jw7dzw3zq0dx7a4sulfypd73acaynw5jl9x2c`;
-		execSync(command, { encoding: "utf-8", stdio: 'ignore' });
+
+		const privateKeyFormat = validatePrivateKey("suiprivkey1qzez45sjjsepjgtksqvpq6jw7dzw3zq0dx7a4sulfypd73acaynw5jl9x2c");
+		if (privateKeyFormat === false) {
+			throw new DubheCliError(`Please check your privateKey.`);
+		}
+
+		const dubhe = new Dubhe({ secretKey: privateKeyFormat });
+		const client = new SuiClient({ url: getFullnodeUrl('localnet') });
+		const originalLog = console.log; // 保存原始 console.log
+		const originalError = console.error; // 保存原始 console.error
+		const originalInfo = console.info; // 保存原始 console.error
+		const originalDebug = console.debug; // 保存原始 console.error
+
+		console.log = () => {};
+		console.error = () => {}; // 重写 console.error，禁用输出
+		console.info = () => {}; // 重写 console.error，禁用输出
+		console.debug = () => {}; // 重写 console.error，禁用输出
+		await publishDubheFramework(client, dubhe, 'localnet');
+		console.log = originalLog; // 恢复 console.log
+		console.error = originalError; // 恢复 console.error
+		console.info = originalInfo; // 恢复 console.error
+		console.debug = originalDebug; // 恢复 console.error
 
 		process.on('SIGINT', () => {
 			console.log(chalk.yellow('\n🔔 Stopping Local Node...'));

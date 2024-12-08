@@ -7,12 +7,13 @@ type Options = {
 	network: any;
 	'config-path': string;
 	'contract-name'?: string;
-	'private-key'?: string;
 };
 
 const commandModule: CommandModule<Options, Options> = {
 	command: 'publish',
+
 	describe: 'Publish dubhe move contract',
+
 	builder(yargs) {
 		return yargs.options({
 			network: {
@@ -29,10 +30,6 @@ const commandModule: CommandModule<Options, Options> = {
 				type: 'string',
 				desc: 'Optional contract name in contracts/ directory',
 			},
-			'private-key': {
-				type: 'string',
-				desc: 'Private key to sign the transaction',
-			},
 		});
 	},
 
@@ -40,11 +37,10 @@ const commandModule: CommandModule<Options, Options> = {
 		network,
 		'config-path': configPath,
 		'contract-name': contractName,
-		'private-key': privateKey,
 	}) {
 		try {
 			const dubheConfig = (await loadConfig(configPath)) as DubheConfig;
-			await publishHandler(dubheConfig, network, contractName, privateKey);
+			await publishHandler(dubheConfig, network, contractName);
 		} catch (error: any) {
 			logError(error);
 			process.exit(1);

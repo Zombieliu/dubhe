@@ -145,6 +145,7 @@ function buildContract(projectPath: string):  string[][] {
 				`sui move build --dump-bytecode-as-base64 --path ${projectPath}`,
 				{
 					encoding: 'utf-8',
+					stdio: 'pipe',
 				}
 			)
 		);
@@ -315,7 +316,7 @@ async function publishContract(
 	}
 }
 
-async function publishDubheFramework(
+export async function publishDubheFramework(
 	client: SuiClient,
 	dubhe: Dubhe,
 	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet',
@@ -408,11 +409,10 @@ export async function publishHandler(
 	dubheConfig: DubheConfig,
 	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet',
 	contractName?: string,
-	maybePrivateKey?: string,
 ) {
 	await switchEnv(network);
 
-	let privateKey = maybePrivateKey || process.env.PRIVATE_KEY;
+	const privateKey = process.env.PRIVATE_KEY;
 	if (!privateKey) {
 		throw new DubheCliError(
 			`Missing PRIVATE_KEY environment variable.
