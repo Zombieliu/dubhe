@@ -22,6 +22,7 @@ function isSuiStartRunning(): boolean {
 }
 
 async function printAccounts() {
+	// These private keys are used for testing purposes only, do not use them in production.
 	const privateKeys = [
 		"suiprivkey1qq3ez3dje66l8pypgxynr7yymwps6uhn7vyczespj84974j3zya0wdpu76v",
 		"suiprivkey1qp6vcyg8r2x88fllmjmxtpzjl95gd9dugqrgz7xxf50w6rqdqzetg7x4d7s",
