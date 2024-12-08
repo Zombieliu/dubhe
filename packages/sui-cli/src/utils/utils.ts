@@ -3,7 +3,6 @@ import { mkdirSync, writeFileSync } from 'fs';
 import { dirname } from 'path';
 import { SUI_PRIVATE_KEY_PREFIX } from '@mysten/sui/cryptography';
 import { FsIibError } from './errors';
-export * from './localnode';
 import * as fs from 'fs';
 import chalk from 'chalk';
 import { spawn } from 'child_process';
