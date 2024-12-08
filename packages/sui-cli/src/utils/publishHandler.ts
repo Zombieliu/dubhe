@@ -408,10 +408,11 @@ export async function publishHandler(
 	dubheConfig: DubheConfig,
 	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet',
 	contractName?: string,
+	maybePrivateKey?: string,
 ) {
 	await switchEnv(network);
 
-	const privateKey = process.env.PRIVATE_KEY;
+	let privateKey = maybePrivateKey || process.env.PRIVATE_KEY;
 	if (!privateKey) {
 		throw new DubheCliError(
 			`Missing PRIVATE_KEY environment variable.

@@ -85,6 +85,10 @@ async function printAccounts() {
 
 		await printAccounts();
 
+		await delay(2000);
+		const command = `pnpm dubhe publish --network localnet --contract-name dubhe-framework --private-key suiprivkey1qzez45sjjsepjgtksqvpq6jw7dzw3zq0dx7a4sulfypd73acaynw5jl9x2c`;
+		execSync(command, { encoding: "utf-8", stdio: 'ignore' });
+
 		process.on('SIGINT', () => {
 			console.log(chalk.yellow('\n🔔 Stopping Local Node...'));
 			if (suiProcess) {
