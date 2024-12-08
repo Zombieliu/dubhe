@@ -1,8 +1,9 @@
 import { execSync, spawn } from 'child_process';
 import chalk from 'chalk';
 import { printDubhe } from './printDubhe';
-import { delay } from '../utils';
+import { delay, DubheCliError, publishDubheFramework, validatePrivateKey } from '../utils';
 import { Dubhe } from '@0xobelisk/sui-client';
+import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
 
 function isSuiStartRunning(): boolean {
 	try {
@@ -21,6 +22,7 @@ function isSuiStartRunning(): boolean {
 }
 
 async function printAccounts() {
+	// These private keys are used for testing purposes only, do not use them in production.
 	const privateKeys = [
 		"suiprivkey1qq3ez3dje66l8pypgxynr7yymwps6uhn7vyczespj84974j3zya0wdpu76v",
 		"suiprivkey1qp6vcyg8r2x88fllmjmxtpzjl95gd9dugqrgz7xxf50w6rqdqzetg7x4d7s",
@@ -84,6 +86,21 @@ async function printAccounts() {
 		console.log('  └─ Faucet server: http://127.0.0.1:9123/');
 
 		await printAccounts();
+
+		await delay(2000);
+
+		const privateKeyFormat = validatePrivateKey("suiprivkey1qzez45sjjsepjgtksqvpq6jw7dzw3zq0dx7a4sulfypd73acaynw5jl9x2c");
+		if (privateKeyFormat === false) {
+			throw new DubheCliError(`Please check your privateKey.`);
+		}
+
+		const dubhe = new Dubhe({ secretKey: privateKeyFormat });
+		const client = new SuiClient({ url: getFullnodeUrl('localnet') });
+		const originalLog = console.log;
+
+		console.log = () => {};
+		await publishDubheFramework(client, dubhe, 'localnet');
+		console.log = originalLog;
 
 		process.on('SIGINT', () => {
 			console.log(chalk.yellow('\n🔔 Stopping Local Node...'));

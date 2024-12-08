@@ -2,17 +2,17 @@ import type { CommandModule } from "yargs";
 import { execSync } from "child_process";
 import chalk from "chalk";
 import { DubheConfig, loadConfig } from '@0xobelisk/sui-common';
+import { switchEnv, updateDubheDependency } from '../utils';
 
 type Options = {
   'config-path': string;
-  'test'?: string;
+   network: any;
+  'dump-bytecode-as-base64'?: boolean;
 };
 
 const commandModule: CommandModule<Options, Options> = {
-  command: "test",
-
+  command: "build",
   describe: "Run tests in Dubhe contracts",
-
   builder(yargs) {
     return yargs.options({
       'config-path': {
@@ -20,25 +20,33 @@ const commandModule: CommandModule<Options, Options> = {
         default: "dubhe.config.ts",
         description: "Options to pass to forge test",
       },
-      test: {
+      network: {
         type: 'string',
-        desc: 'Run a specific test',
+        choices: ['mainnet', 'testnet', 'devnet', 'localnet'],
+        desc: 'Node network (mainnet/testnet/devnet/localnet)',
+      },
+      'dump-bytecode-as-base64': {
+        type: 'boolean',
+        default: false,
+        desc: 'Dump bytecode as base64',
       },
     });
   },
 
-  async handler({ 'config-path': configPath, test }) {
+  async handler({ 'config-path': configPath, network, 'dump-bytecode-as-base64': dumpBytecodeAsBase64 }) {
     // Start an internal anvil process if no world address is provided
     try {
-      console.log('🚀 Running move test');
+      console.log('🚀 Running move build');
       const dubheConfig = (await loadConfig(configPath)) as DubheConfig;
       const path = process.cwd();
       const projectPath = `${path}/contracts/${dubheConfig.name}`;
-      const command = `sui move test --path ${projectPath} ${test ? ` --test ${test}` : ''}`;
-      const output =  execSync(command, { encoding: "utf-8" });
+      await switchEnv(network);
+      updateDubheDependency(projectPath+'/Move.toml', network);
+      const command = `sui move build --path ${projectPath} ${dumpBytecodeAsBase64 ? ` --dump-bytecode-as-base64` : ''}`;
+      const output = execSync(command, { encoding: "utf-8" });
       console.log(output);
     } catch (error: any) {
-      console.error(chalk.red("Error executing sui move test:"));
+      console.error(chalk.red("Error executing sui move build:"));
       console.log(error.stdout);
       process.exit(0);
     }

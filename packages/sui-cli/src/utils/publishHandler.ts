@@ -145,6 +145,7 @@ function buildContract(projectPath: string):  string[][] {
 				`sui move build --dump-bytecode-as-base64 --path ${projectPath}`,
 				{
 					encoding: 'utf-8',
+					stdio: 'pipe',
 				}
 			)
 		);
@@ -315,7 +316,7 @@ async function publishContract(
 	}
 }
 
-async function publishDubheFramework(
+export async function publishDubheFramework(
 	client: SuiClient,
 	dubhe: Dubhe,
 	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet',

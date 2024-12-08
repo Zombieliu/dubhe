@@ -230,7 +230,6 @@ export async function switchEnv(network: 'mainnet' | 'testnet' | 'devnet' | 'loc
 					console.error(chalk.red(`\n❌ Process exited with code: ${code}`));
 					reject(new Error(`Process exited with code: ${code}`));
 				} else {
-					console.log(chalk.green('\n✅ Environment switched successfully.'));
 					resolve(); // Resolve promise on successful exit
 				}
 			});
