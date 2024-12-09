@@ -10,7 +10,7 @@ import build from './build';
 import hello from './hello';
 import generateKey from './generateKey';
 import checkBalance from './checkBalance';
-import storeConfig from './storeConfig';
+import configStore from './configStore';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Each command has different options
 export const commands: CommandModule<any, any>[] = [
@@ -24,5 +24,5 @@ export const commands: CommandModule<any, any>[] = [
 	hello,
 	generateKey,
 	checkBalance,
-	storeConfig,
+	configStore,
 ];
