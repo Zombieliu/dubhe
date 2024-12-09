@@ -10,7 +10,7 @@
     "upgrade": "pnpm dubhe upgrade --network",
     "schema:gen": "pnpm dubhe schemagen",
     "account:gen": "pnpm dubhe generate-key --output-ts-path ./src/chain/key.ts",
-    "check-balance": "pnpm dubhe check-balance --network",
+    "check-balance": "pnpm dubhe check-balance --amount 3 --network",
     "config:store": "pnpm dubhe config-store --output-ts-path ./src/chain/config.ts --network",
     "// Development Environment": "----------------",
     "dev": "pnpm dev:localnet",
@@ -25,7 +25,7 @@
     "prod:testnet": "pnpm config:store testnet && pnpm next"
   },
   "dependencies": {
-    "@0xobelisk/sui-cli": "^0.5.32",
+    "@0xobelisk/sui-cli": "^0.5.33",
     "@0xobelisk/sui-client": "^0.5.28",
     "@0xobelisk/sui-common": "^0.5.23",
     "@mysten/sui": "1.7.0",

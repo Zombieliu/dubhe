@@ -40,7 +40,9 @@ export async function checkBalanceHandler(
 		if (balanceInSUI < amount) {
 			// console.log(chalk.yellow(`Account balance is less than 2 SUI.`));
 			throw new DubheCliError(
-				`Account balance is less than ${amount} SUI. Please get more SUI.`
+				`Your account balance ${balanceInSUI.toFixed(
+					4
+				)} SUI is less than ${amount} SUI. Please get more SUI.`
 			);
 		}
 
