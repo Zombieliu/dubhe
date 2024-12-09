@@ -4,8 +4,20 @@ import chalk from 'chalk';
 
 export async function generateAccountHandler(
 	force: boolean = false,
-	outputTsPath: string
+	outputTsPath?: string
 ) {
+	if (outputTsPath) {
+		console.log(
+			chalk.blue(
+				'Note: The generated account will be stored in the .env file and the TypeScript file specified by the --output-ts-path option.'
+			)
+		);
+		console.log(
+			chalk.yellow(
+				'Warning: Do not expose the key file. It is intended for local testing only.\n'
+			)
+		);
+	}
 	const path = process.cwd();
 	let privateKey: string;
 
@@ -31,7 +43,7 @@ export async function generateAccountHandler(
 export const ACCOUNT = '${keypair.toSuiAddress()}';
 `
 			);
-			console.log(chalk.green(`File created at: ${outputTsPath}`));
+			console.log(chalk.green(`File created at: ${outputTsPath}\n`));
 		}
 
 		console.log(
@@ -63,7 +75,7 @@ export const ACCOUNT = '${keypair.toSuiAddress()}';
 export const ACCOUNT = '${keypair.toSuiAddress()}';
 `
 				);
-				console.log(chalk.green(`File created at: ${outputTsPath}`));
+				console.log(chalk.green(`File created at: ${outputTsPath}\n`));
 			}
 
 			console.log(
@@ -93,7 +105,7 @@ export const ACCOUNT = '${keypair.toSuiAddress()}';
 export const ACCOUNT = '${keypair.toSuiAddress()}';
 `
 		);
-		console.log(chalk.green(`File created at: ${outputTsPath}`));
+		console.log(chalk.green(`File created at: ${outputTsPath}\n`));
 	}
 
 	console.log(chalk.blue(`Generate new Account: ${keypair.toSuiAddress()}`));

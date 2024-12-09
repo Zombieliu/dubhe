@@ -25,7 +25,7 @@
     "prod:testnet": "pnpm config:store testnet && pnpm next"
   },
   "dependencies": {
-    "@0xobelisk/sui-cli": "^0.5.30",
+    "@0xobelisk/sui-cli": "^0.5.32",
     "@0xobelisk/sui-client": "^0.5.28",
     "@0xobelisk/sui-common": "^0.5.23",
     "@mysten/dapp-kit": "0.14.9",

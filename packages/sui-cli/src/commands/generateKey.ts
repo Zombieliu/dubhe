@@ -2,14 +2,14 @@ import type { CommandModule } from 'yargs';
 import { generateAccountHandler } from '../utils/generateAccount';
 
 type Options = {
-	force: boolean;
-	'output-ts-path': string;
+	force?: boolean;
+	'output-ts-path'?: string;
 };
 
 const commandModule: CommandModule<Options, Options> = {
 	command: 'generate-key',
 	describe:
-		'Generate a new account key pair to .env file and output to a TypeScript file.',
+		'Generate a new account key pair and save it to a .env file, with an option to output to a TypeScript file.',
 	builder: {
 		force: {
 			type: 'boolean',
@@ -18,10 +18,10 @@ const commandModule: CommandModule<Options, Options> = {
 		},
 		'output-ts-path': {
 			type: 'string',
-			desc: 'Path to output the TypeScript file with keys',
+			desc: 'Specify the path to output the TypeScript file containing the key pair (e.g., ./src/config/key.ts)',
 		},
 	},
-	async handler({ force, outputTsPath }) {
+	async handler({ force, 'output-ts-path': outputTsPath }) {
 		try {
 			await generateAccountHandler(force, outputTsPath);
 		} catch (error) {

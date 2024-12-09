@@ -6,7 +6,7 @@ import { DubheCliError } from './errors';
 dotenv.config();
 
 export async function checkBalanceHandler(
-	network: 'mainnet' | 'testnet' | 'devnet' | 'loclnet',
+	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet',
 	amount: number = 2
 ) {
 	try {

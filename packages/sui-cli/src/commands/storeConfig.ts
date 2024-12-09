@@ -5,7 +5,7 @@ import { loadConfig, DubheConfig } from '@0xobelisk/sui-common';
 type Options = {
 	'config-path': string;
 	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet';
-	'output-path': string;
+	'output-ts-path': string;
 };
 
 const commandModule: CommandModule<Options, Options> = {
@@ -24,15 +24,19 @@ const commandModule: CommandModule<Options, Options> = {
 			choices: ['mainnet', 'testnet', 'devnet', 'localnet'],
 			desc: 'Network to store config for',
 		},
-		'output-path': {
+		'output-ts-path': {
 			type: 'string',
-			desc: 'Path to output the configuration',
+			desc: 'Specify the output path for the generated TypeScript configuration file (e.g., ./src/config/generated.ts)',
 		},
 	},
-	async handler({ 'config-path': configPath, network, outputPath }) {
+	async handler({
+		'config-path': configPath,
+		network,
+		'output-ts-path': outputTsPath,
+	}) {
 		try {
 			const dubheConfig = (await loadConfig(configPath)) as DubheConfig;
-			await storeConfigHandler(dubheConfig, network, outputPath);
+			await storeConfigHandler(dubheConfig, network, outputTsPath);
 		} catch (error) {
 			console.error('Error storing config:', error);
 			process.exit(1);
