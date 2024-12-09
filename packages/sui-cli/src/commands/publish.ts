@@ -7,6 +7,7 @@ type Options = {
 	network: any;
 	'config-path': string;
 	'contract-name'?: string;
+	'gas-budget'?: number;
 };
 
 const commandModule: CommandModule<Options, Options> = {
@@ -30,6 +31,11 @@ const commandModule: CommandModule<Options, Options> = {
 				type: 'string',
 				desc: 'Optional contract name in contracts/ directory',
 			},
+			'gas-budget': {
+				type: 'number',
+				desc: 'Optional gas budget for the transaction',
+				optional: true,
+			},
 		});
 	},
 
@@ -37,10 +43,11 @@ const commandModule: CommandModule<Options, Options> = {
 		network,
 		'config-path': configPath,
 		'contract-name': contractName,
+		'gas-budget': gasBudget,
 	}) {
 		try {
 			const dubheConfig = (await loadConfig(configPath)) as DubheConfig;
-			await publishHandler(dubheConfig, network, contractName);
+			await publishHandler(dubheConfig, network, contractName, gasBudget);
 		} catch (error: any) {
 			logError(error);
 			process.exit(1);

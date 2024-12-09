@@ -192,7 +192,8 @@ async function publishContract(
 	dubhe: Dubhe,
 	dubheConfig: DubheConfig,
 	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet',
-	projectPath: string
+	projectPath: string,
+	gasBudget?: number
 ) {
 	const dappsObjectId = await getDappsObjectId(network);
 	console.log('dappsObjectId', dappsObjectId);
@@ -212,6 +213,9 @@ async function publishContract(
 
 	console.log('\n🔄 Publishing Contract...');
 	const tx = new Transaction();
+	if (gasBudget) {
+		tx.setGasBudget(gasBudget);
+	}
 	const [upgradeCap] = tx.publish({ modules, dependencies });
 	tx.transferObjects([upgradeCap], keypair.toSuiAddress());
 
@@ -275,7 +279,9 @@ async function publishContract(
 	await delay(5000);
 
 	const deployHookTx = new Transaction();
-	deployHookTx.setGasBudget(2000000000);
+	if (gasBudget) {
+		deployHookTx.setGasBudget(gasBudget);
+	}
 	const [txCoin] = deployHookTx.splitCoins(deployHookTx.gas, ['1000000000']);
 	deployHookTx.moveCall({
 		target: `${packageId}::deploy_hook::run`,
@@ -350,6 +356,9 @@ async function publishContract(
 				'     Please republish or manually call deploy_hook::run'
 			)
 		);
+		console.log(chalk.yellow('     Please check the transaction digest:'));
+		console.log(chalk.yellow(`     ${deployHookResult.digest}`));
+		process.exit(1);
 	}
 }
 
@@ -447,7 +456,8 @@ export async function publishDubheFramework(
 export async function publishHandler(
 	dubheConfig: DubheConfig,
 	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet',
-	contractName?: string
+	contractName?: string,
+	gasBudget?: number
 ) {
 	await switchEnv(network);
 
@@ -473,6 +483,13 @@ in your contracts directory to use the default sui private key.`
 		const path = process.cwd();
 		const projectPath = `${path}/contracts/${dubheConfig.name}`;
 		updateDubheDependency(`${projectPath}/Move.toml`, network);
-		await publishContract(client, dubhe, dubheConfig, network, projectPath);
+		await publishContract(
+			client,
+			dubhe,
+			dubheConfig,
+			network,
+			projectPath,
+			gasBudget
+		);
 	}
 }
