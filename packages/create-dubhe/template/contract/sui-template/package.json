@@ -9,8 +9,8 @@
 		"deploy": "pnpm dubhe publish --network",
 		"upgrade": "pnpm dubhe upgrade --network",
 		"schema:gen": "pnpm dubhe schemagen",
-		"account:gen": "NODE_NO_WARNINGS=1 ts-node scripts/generateAccount.ts",
-		"check-balance": "NODE_NO_WARNINGS=1 ts-node scripts/checkBalance.ts"
+		"account:gen": "pnpm dubhe generate-key",
+		"check-balance": "pnpm dubhe check-balance --network"
 	},
 	"dependencies": {
 		"@0xobelisk/sui-cli": "^0.5.34",
