@@ -43,6 +43,7 @@ import {
   MapModuleFuncTx,
   NetworkType,
 } from './types';
+import { isValidNetworkType, NetworkConfig } from './libs/aptosInteractor';
 
 export function isUndefined(value?: unknown): value is undefined {
   return value === undefined;
@@ -151,6 +152,11 @@ export class Dubhe {
     metadata,
     signatureType,
   }: DubheParams = {}) {
+    if (networkType && !isValidNetworkType(networkType)) {
+      throw new Error(
+        `Invalid network type: ${networkType}. Valid values are: mainnet, testnet, devnet, localnet, movementmainnet, movementtestnet`
+      );
+    }
     // Init the account manager
     this.accountManager = new AptosAccountManager({
       mnemonics,
@@ -327,6 +333,26 @@ export class Dubhe {
     return this.contractFactory.metadata;
   }
 
+  getNetworkType(): NetworkType {
+    return this.aptosInteractor.network;
+  }
+
+  getNetworkConfig(): NetworkConfig {
+    return getDefaultURL(this.aptosInteractor.network);
+  }
+
+  getTxExplorerUrl(txHash: string) {
+    return this.getNetworkConfig().txExplorer.replace(':txHash', txHash);
+  }
+
+  getAccountExplorerUrl(address: string) {
+    return this.getNetworkConfig().accountExplorer.replace(':address', address);
+  }
+
+  getExplorerUrl() {
+    return this.getNetworkConfig().explorer;
+  }
+
   /**
    * Request some APT from faucet
    * @Returns {Promise<boolean>}, true if the request is successful, false otherwise.
@@ -339,7 +365,7 @@ export class Dubhe {
       amount = 50000000;
     }
     let options: WaitForTransactionOptions | undefined;
-    if (this.aptosInteractor.network === Network.LOCAL) {
+    if (this.aptosInteractor.network === 'localnet') {
       options = {
         checkSuccess: false,
         waitForIndexer: false,

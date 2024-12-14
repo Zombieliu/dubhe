@@ -1,4 +1,4 @@
-import { InputNetworkType, AccountAddress } from '@0xobelisk/aptos-client';
+import { AccountAddress, NetworkType } from '@0xobelisk/aptos-client';
 import * as fsAsync from 'fs/promises';
 import { mkdirSync, writeFileSync } from 'fs';
 import { dirname } from 'path';
@@ -9,11 +9,8 @@ import fs from 'fs';
 
 export type DeploymentJsonType = {
 	projectName: string;
-	network: InputNetworkType;
+	network: NetworkType;
 	packageId: string;
-	// worldId: string;
-	// upgradeCap: string;
-	// adminCap: string;
 	version: number;
 };
 
@@ -78,7 +75,7 @@ export async function getVersion(
 export async function getNetwork(
 	projectPath: string,
 	network: string
-): Promise<InputNetworkType> {
+): Promise<NetworkType> {
 	const deployment = await getDeploymentJson(projectPath, network);
 	return deployment.network;
 }
@@ -91,46 +88,16 @@ export async function getOldPackageId(
 	return deployment.packageId;
 }
 
-// export async function getWorldId(
-//   projectPath: string,
-//   network: string
-// ): Promise<string> {
-//   const deployment = await getDeploymentJson(projectPath, network);
-//   return deployment.worldId;
-// }
-
-// export async function getUpgradeCap(
-//   projectPath: string,
-//   network: string
-// ): Promise<string> {
-//   const deployment = await getDeploymentJson(projectPath, network);
-//   return deployment.upgradeCap;
-// }
-
-// export async function getAdminCap(
-//   projectPath: string,
-//   network: string
-// ): Promise<string> {
-//   const deployment = await getDeploymentJson(projectPath, network);
-//   return deployment.adminCap;
-// }
-
 export function saveContractData(
 	projectName: string,
-	network: InputNetworkType,
+	network: NetworkType,
 	packageId: string,
-	// worldId: string,
-	// upgradeCap: string,
-	// adminCap: string,
 	version: number
 ) {
 	const DeploymentData: DeploymentJsonType = {
 		projectName,
 		network,
 		packageId,
-		// worldId,
-		// upgradeCap,
-		// adminCap,
 		version,
 	};
 
@@ -169,6 +136,7 @@ export const delay = (ms: number) =>
  * @param namedAddresses
  */
 export function compilePackage(
+	cliName: string,
 	packageDir: string,
 	outputFile: string,
 	namedAddresses: Array<{ name: string; address: AccountAddress }>
@@ -177,10 +145,10 @@ export function compilePackage(
 		'In order to run compilation, you must have the `aptos` CLI installed.'
 	);
 	try {
-		execSync('aptos --version');
+		execSync(`${cliName} --version`);
 	} catch (e) {
 		console.log(
-			'aptos is not installed. Please install it from the instructions on aptos.dev'
+			`${cliName} is not installed. Please install it from the instructions on aptos.dev`
 		);
 	}
 
@@ -189,7 +157,7 @@ export function compilePackage(
 		.join(' ');
 
 	// Assume-yes automatically overwrites the previous compiled version, only do this if you are sure you want to overwrite the previous version.
-	const compileCommand = `aptos move build-publish-payload --json-output-file ${outputFile} --package-dir ${packageDir} --named-addresses ${addressArg} --assume-yes`;
+	const compileCommand = `${cliName} move build-publish-payload --json-output-file ${outputFile} --package-dir ${packageDir} --named-addresses ${addressArg} --assume-yes`;
 	console.log(
 		'Running the compilation locally, in a real situation you may want to compile this ahead of time.'
 	);

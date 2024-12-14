@@ -1,10 +1,5 @@
 import chalk from 'chalk';
-import {
-	InputNetworkType,
-	Dubhe,
-	AccountAddress,
-	NetworkType,
-} from '@0xobelisk/aptos-client';
+import { Dubhe, AccountAddress, NetworkType } from '@0xobelisk/aptos-client';
 
 import { DubheCliError } from './errors';
 import {
@@ -16,7 +11,7 @@ import {
 
 export async function publishHandler(
 	projectName: string,
-	network: InputNetworkType,
+	network: NetworkType,
 	namedAddresses?: Array<{ name: string; address: AccountAddress }>
 ) {
 	const privateKey = process.env.PRIVATE_KEY;
@@ -34,8 +29,14 @@ export async function publishHandler(
 
 	const dubhe = new Dubhe({
 		secretKey: privateKeyFormat.toString(),
-		networkType: network as NetworkType,
+		networkType: network,
 	});
+
+	let cliName = 'aptos';
+
+	if (network.startsWith('movement')) {
+		cliName = 'movement';
+	}
 
 	if (namedAddresses === undefined) {
 		namedAddresses = [{ name: projectName, address: dubhe.getAddress() }];
@@ -50,12 +51,14 @@ export async function publishHandler(
 			});
 		}
 	}
+	const buildOutputPath = `contracts/${projectName}/build/${projectName}.json`;
 
 	const path = process.cwd();
 	try {
 		compilePackage(
+			cliName,
 			`${path}/contracts/${projectName}`,
-			`${path}/contracts/${projectName}/${projectName}.json`,
+			buildOutputPath,
 			namedAddresses
 		);
 
@@ -78,7 +81,6 @@ export async function publishHandler(
 	let version = 0;
 
 	try {
-		const buildOutputPath = `contracts/${projectName}/${projectName}.json`;
 		// const packageMetadata = fs.readFileSync(
 		// 	`${path}/contracts/${projectName}/build/${projectName}/package-metadata.bcs`
 		// );
