@@ -203,11 +203,6 @@ export async function switchEnv(network: 'mainnet' | 'testnet' | 'devnet' | 'loc
 				console.log(chalk.green(`${data.toString()}`));
 			});
 
-			suiProcess.stderr.on('data', data => {
-				console.error(chalk.red('\n❌ Failed to Switch Env'));
-				console.error(chalk.red(`  Error: ${data.toString()}`));
-			});
-
 			suiProcess.on('error', error => {
 				console.error(chalk.red('\n❌ Failed to Switch Env'));
 				console.error(chalk.red(`  Error: ${error.message}`));
