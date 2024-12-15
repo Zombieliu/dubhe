@@ -172,9 +172,9 @@ function getDubheDependency(network: 'mainnet' | 'testnet' |  'devnet' | 'localn
 		case 'localnet':
 			return 'Dubhe = { local = "../dubhe-framework" }';
 		case 'testnet':
-			return 'Dubhe = { git = "https://github.com/0xobelisk/dubhe-framework.git", rev = "dubhe-testnet-v1.0.0" }';
+			return 'Dubhe = { git = "https://github.com/0xobelisk/dubhe-framework.git", rev = "dubhe-testnet-v1.1.0" }';
 		case 'mainnet':
-			return 'Dubhe = { git = "https://github.com/0xobelisk/dubhe-framework.git", rev = "dubhe-mainnet-v1.0.0" }';
+			return 'Dubhe = { git = "https://github.com/0xobelisk/dubhe-framework.git", rev = "dubhe-mainnet-v1.1.0" }';
 		default:
 			throw new Error(`Unsupported network: ${network}`);
 	}
