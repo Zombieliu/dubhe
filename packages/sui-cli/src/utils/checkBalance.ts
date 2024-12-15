@@ -6,16 +6,9 @@ import { DubheCliError } from './errors';
 dotenv.config();
 
 export async function checkBalanceHandler(
-	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet',
-	amount: number = 2
+	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet'
 ) {
 	try {
-		console.log(
-			chalk.blue(
-				`Note: You need at least 2 SUI for transaction fees and staking, and registering a Dapp will reserve 1 SUI for Dubhe Dapp Staking, which can be retrieved upon unregistering.`
-			)
-		);
-
 		const privateKey = process.env.PRIVATE_KEY;
 		if (!privateKey) {
 			throw new DubheCliError(
@@ -37,12 +30,9 @@ export async function checkBalanceHandler(
 		const balance = await dubhe.getBalance();
 		const balanceInSUI = Number(balance.totalBalance) / 1_000_000_000;
 
-		if (balanceInSUI < amount) {
-			// console.log(chalk.yellow(`Account balance is less than 2 SUI.`));
+		if (balanceInSUI === 0) {
 			throw new DubheCliError(
-				`Your account balance ${balanceInSUI.toFixed(
-					4
-				)} SUI is less than ${amount} SUI. Please get more SUI.`
+				`Your account balance is 0 SUI. Please get some SUI to proceed.`
 			);
 		}
 

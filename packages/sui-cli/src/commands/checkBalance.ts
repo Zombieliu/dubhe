@@ -3,7 +3,6 @@ import { checkBalanceHandler } from '../utils/checkBalance';
 
 type Options = {
 	network: 'mainnet' | 'testnet' | 'devnet' | 'localnet';
-	amount: number;
 };
 
 const commandModule: CommandModule<Options, Options> = {
@@ -15,15 +14,10 @@ const commandModule: CommandModule<Options, Options> = {
 			choices: ['mainnet', 'testnet', 'devnet', 'localnet'],
 			desc: 'Network to check balance on',
 		},
-		amount: {
-			type: 'number',
-			default: 2,
-			desc: 'Amount of SUI to check balance for',
-		},
 	},
-	async handler({ network, amount }) {
+	async handler({ network }) {
 		try {
-			await checkBalanceHandler(network, amount);
+			await checkBalanceHandler(network);
 		} catch (error) {
 			console.error('Error checking balance:', error);
 			process.exit(1);
