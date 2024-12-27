@@ -42,7 +42,7 @@
     storage_migration::borrow_field(&self.id, b"monster_info")
   }
 
-  public(package) fun borrow_mut_monster_info(self: &mut Encounter): &mut StorageMap<address, MonsterInfo> {
+  public(package) fun monster_info(self: &mut Encounter): &mut StorageMap<address, MonsterInfo> {
     storage_migration::borrow_mut_field(&mut self.id, b"monster_info")
   }
 
@@ -50,7 +50,7 @@
     storage_migration::borrow_field(&self.id, b"encounter_trigger")
   }
 
-  public(package) fun borrow_mut_encounter_trigger(self: &mut Encounter): &mut StorageDoubleMap<u64, u64, bool> {
+  public(package) fun encounter_trigger(self: &mut Encounter): &mut StorageDoubleMap<u64, u64, bool> {
     storage_migration::borrow_mut_field(&mut self.id, b"encounter_trigger")
   }
 

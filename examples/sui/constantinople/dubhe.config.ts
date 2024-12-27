@@ -6,10 +6,7 @@ export const dubheConfig = {
 	schemas: {
 		entity: {
 			data: [
-				{
-					name: "MonsterType",
-					fields: ["None", "Eagle", "Rat", "Caterpillar"],
-				}
+				{ MonsterType: ["None", "Eagle", "Rat", "Caterpillar"] }
 			],
 			structure: {
 				player: 'StorageMap<address, bool>',
@@ -20,38 +17,15 @@ export const dubheConfig = {
 				moveable: 'StorageMap<address, bool>',
 			},
 			errors: [
-				{
-					name: "CannotMove",
-					message: "This entity cannot move",
-				}
+				{ CannotMove: "This entity cannot move" }
 			]
 		},
 		map: {
 			data: [
-				{
-					name: "Direction",
-					fields: ["North", "East", "South", "West"],
-				},
-				{
-					name: "TerrainType",
-					fields: ["None", "TallGrass", "Boulder"],
-				},
-
-				{
-					name: "Config",
-					fields: {
-						width: "u64",
-						height: "u64",
-						terrain: "vector<vector<TerrainType>>",
-					}
-				},
-				{
-					name: "Position",
-					fields: {
-						x: "u64",
-						y: "u64",
-					}
-				},
+				{ Direction: ["North", "East", "South", "West"] },
+				{ TerrainType: ["None", "TallGrass", "Boulder"] },
+				{ Config: { width: "u64", height: "u64", terrain: "vector<vector<TerrainType>>" } },
+				{ Position: { x: "u64", y: "u64" } },
 			],
 			structure: {
 				config: 'StorageValue<Config>',
@@ -59,33 +33,15 @@ export const dubheConfig = {
 
 			},
 			errors: [
-				{
-					name: 'AlreadyRegistered',
-					message: "This address is already registered",
-				},
-				{
-					name: 'NotRegistered',
-					message: "This address is not registered",
-				},
-				{
-					name: 'SpaceObstructed',
-					message: "This space is obstructed",
-				},
+				{ AlreadyRegistered: "This address is already registered" },
+				{ NotRegistered: "This address is not registered" },
+				{ SpaceObstructed: "This space is obstructed" },
 			]
 		},
 		encounter : {
 			data: [
-				{
-					name: "MonsterCatchResult",
-					fields: ["Missed", "Caught", "Fled"],
-				},
-				{
-					name: "MonsterInfo",
-					fields: {
-						monster: "address",
-						catch_attempts: "u64",
-					}
-				}
+				{ MonsterCatchResult: ["Missed", "Caught", "Fled"] },
+				{ MonsterInfo: { monster: "address", catch_attempts: "u64" } }
 			],
 			structure: {
 				monster_info: 'StorageMap<address, MonsterInfo>',
@@ -93,8 +49,7 @@ export const dubheConfig = {
 			},
 			events: [
 				{
-					name: 'MonsterCatchAttempt',
-					fields: {
+					MonsterCatchAttempt: {
 						player: 'address',
 						monster: 'address',
 						result: 'MonsterCatchResult',
@@ -102,10 +57,7 @@ export const dubheConfig = {
 				},
 			],
 			errors: [
-				{
-					name: "NotInEncounter",
-					message: "This player is not in an encounter",
-				}
+				{ NotInEncounter: "This player is not in an encounter" }
 			]
 		}
 	},

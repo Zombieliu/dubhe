@@ -53,34 +53,26 @@
         let x: u64 = 0;
         let y: u64 = 0;
 
-        map.borrow_mut_config().set(constantinople::map_config::new(width, height, terrains));
+        map.config().set(constantinople::map_config::new(width, height, terrains));
 
         x.range_do!(height, |x| {
             y.range_do!(width, |y| {
                 let terrain = terrains[x][y];
                 if (terrain != map_terrain_type::new_none()) {
                     let entity_key = constantinople::map_system::position_to_address(x, y);
-                    map.borrow_mut_position().insert(entity_key, constantinople::map_position::new(x, y));
+                    map.position().insert(entity_key, constantinople::map_position::new(x, y));
                     if (terrain == map_terrain_type::new_tall_grass()) {
-                        entity.borrow_mut_obstruction().insert(entity_key, true);
-                        entity.borrow_mut_encounterable().insert(entity_key, false);
-                        entity.borrow_mut_moveable().insert(entity_key, false);
+                        entity.obstruction().insert(entity_key, true);
+                        entity.encounterable().insert(entity_key, false);
+                        entity.moveable().insert(entity_key, false);
                     } else if (terrain == map_terrain_type::new_boulder()) {
-                        entity.borrow_mut_obstruction().insert(entity_key, false);
-                        entity.borrow_mut_encounterable().insert(entity_key, true);
-                        entity.borrow_mut_moveable().insert(entity_key, false);
+                        entity.obstruction().insert(entity_key, false);
+                        entity.encounterable().insert(entity_key, true);
+                        entity.moveable().insert(entity_key, false);
                     }
                 }
             })
         });
-
-       //  map.do!(|v| {
-       //      v.do!(|t| {
-       //          if (t == map_terrain_type::new_none()) { } else {
-       //              let terrain = map_system::position_to_address(t, width, height);
-       //          }
-       //      })
-       // });
 			};
     // Authorize schemas and public share objects
     dapp.add_schema<Entity>(entity, ctx);

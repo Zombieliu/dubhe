@@ -46,7 +46,7 @@
     storage_migration::borrow_field(&self.id, b"config")
   }
 
-  public(package) fun borrow_mut_config(self: &mut Map): &mut StorageValue<Config> {
+  public(package) fun config(self: &mut Map): &mut StorageValue<Config> {
     storage_migration::borrow_mut_field(&mut self.id, b"config")
   }
 
@@ -54,7 +54,7 @@
     storage_migration::borrow_field(&self.id, b"position")
   }
 
-  public(package) fun borrow_mut_position(self: &mut Map): &mut StorageMap<address, Position> {
+  public(package) fun position(self: &mut Map): &mut StorageMap<address, Position> {
     storage_migration::borrow_mut_field(&mut self.id, b"position")
   }
 

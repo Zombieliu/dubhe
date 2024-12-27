@@ -40,7 +40,7 @@
     storage_migration::borrow_field(&self.id, b"player")
   }
 
-  public(package) fun borrow_mut_player(self: &mut Entity): &mut StorageMap<address, bool> {
+  public(package) fun player(self: &mut Entity): &mut StorageMap<address, bool> {
     storage_migration::borrow_mut_field(&mut self.id, b"player")
   }
 
@@ -48,7 +48,7 @@
     storage_migration::borrow_field(&self.id, b"monster")
   }
 
-  public(package) fun borrow_mut_monster(self: &mut Entity): &mut StorageMap<address, MonsterType> {
+  public(package) fun monster(self: &mut Entity): &mut StorageMap<address, MonsterType> {
     storage_migration::borrow_mut_field(&mut self.id, b"monster")
   }
 
@@ -56,7 +56,7 @@
     storage_migration::borrow_field(&self.id, b"obstruction")
   }
 
-  public(package) fun borrow_mut_obstruction(self: &mut Entity): &mut StorageMap<address, bool> {
+  public(package) fun obstruction(self: &mut Entity): &mut StorageMap<address, bool> {
     storage_migration::borrow_mut_field(&mut self.id, b"obstruction")
   }
 
@@ -64,7 +64,7 @@
     storage_migration::borrow_field(&self.id, b"owned_by")
   }
 
-  public(package) fun borrow_mut_owned_by(self: &mut Entity): &mut StorageMap<address, address> {
+  public(package) fun owned_by(self: &mut Entity): &mut StorageMap<address, address> {
     storage_migration::borrow_mut_field(&mut self.id, b"owned_by")
   }
 
@@ -72,7 +72,7 @@
     storage_migration::borrow_field(&self.id, b"encounterable")
   }
 
-  public(package) fun borrow_mut_encounterable(self: &mut Entity): &mut StorageMap<address, bool> {
+  public(package) fun encounterable(self: &mut Entity): &mut StorageMap<address, bool> {
     storage_migration::borrow_mut_field(&mut self.id, b"encounterable")
   }
 
@@ -80,7 +80,7 @@
     storage_migration::borrow_field(&self.id, b"moveable")
   }
 
-  public(package) fun borrow_mut_moveable(self: &mut Entity): &mut StorageMap<address, bool> {
+  public(package) fun moveable(self: &mut Entity): &mut StorageMap<address, bool> {
     storage_migration::borrow_mut_field(&mut self.id, b"moveable")
   }
 

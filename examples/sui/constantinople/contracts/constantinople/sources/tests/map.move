@@ -23,10 +23,10 @@ module constantinople::map_test {
         let mut ctx = test_scenario::ctx(&mut scenario);
         map_system::register(&mut map, &mut entity, 0, 0, ctx);
 
-        assert!(entity.borrow_player().contains_key(ctx.sender()));
-        assert!(entity.borrow_moveable().contains_key(ctx.sender()));
+        assert!(entity.player().contains_key(ctx.sender()));
+        assert!(entity.moveable().contains_key(ctx.sender()));
         assert!(entity.borrow_encounterable().contains_key(ctx.sender()));
-        assert!(map.borrow_position().contains_key(ctx.sender()));
+        assert!(map.position().contains_key(ctx.sender()));
 
         test_scenario::return_shared(encounter);
         test_scenario::return_shared(entity);
