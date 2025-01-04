@@ -1,5 +1,4 @@
 module constantinople::map_system {
-    use std::debug;
     use sui::bcs;
     use constantinople::monster_info;
     use constantinople::encounter_schema::Encounter;
@@ -26,12 +25,12 @@ module constantinople::map_system {
         let y = (y + height) % height;
 
         let space_addr = position_to_address(x, y);
-        if(entity.obstruction().contains_key(space_addr)) {
-            space_obstructed_error::require(!entity.obstruction().get(space_addr));
-        };
+        space_obstructed_error::require(!entity.obstruction().get(space_addr));
+
         entity.player().set(player, true);
         entity.moveable().set(player, true);
         entity.encounterable().set(player, true);
+        entity.owned_by().set(player, vector[]);
         map.position().set(player, position::new(x, y));
     }
 
@@ -77,23 +76,24 @@ module constantinople::map_system {
         let y = (y + height) % height;
 
         let space_addr = position_to_address(x, y);
-        if(entity.obstruction().contains_key(space_addr)) {
-            space_obstructed_error::require(!entity.obstruction().get(space_addr));
-        };
+        space_obstructed_error::require(!entity.obstruction().get(space_addr));
 
         map.position().set(player, position::new(x, y));
 
         let mut generator = random::new_generator(random, ctx);
         let rand = random::generate_u128(&mut generator);
-        debug::print(&rand);
-        if (rand % 5 == 0) {
-            start_encounter(entity, encounter, &mut generator, player);
+        // std::debug::print(&rand);
+
+        if(entity.player().get(player) && encounter.trigger().get(space_addr)) {
+            if (rand % 5 == 0) {
+                start_encounter(entity, encounter, &mut generator, player);
+            }
         }
     }
 
     public fun position_to_address(x: u64, y: u64): address {
         let mut x = bcs::to_bytes(&(x as u128));
-        let mut y = bcs::to_bytes(&(y as u128));
+        let y = bcs::to_bytes(&(y as u128));
         x.append(y);
         address::from_bytes(x)
     }

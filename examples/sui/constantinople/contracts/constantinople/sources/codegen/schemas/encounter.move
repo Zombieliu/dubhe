@@ -56,18 +56,18 @@
     storage_migration::borrow_mut_field(&mut self.id, b"monster_info")
   }
 
-  public fun borrow_encounter_trigger(self: &Encounter): &StorageDoubleMap<u64, u64, bool> {
-    storage_migration::borrow_field(&self.id, b"encounter_trigger")
+  public fun borrow_trigger(self: &Encounter): &StorageMap<address, bool> {
+    storage_migration::borrow_field(&self.id, b"trigger")
   }
 
-  public(package) fun encounter_trigger(self: &mut Encounter): &mut StorageDoubleMap<u64, u64, bool> {
-    storage_migration::borrow_mut_field(&mut self.id, b"encounter_trigger")
+  public(package) fun trigger(self: &mut Encounter): &mut StorageMap<address, bool> {
+    storage_migration::borrow_mut_field(&mut self.id, b"trigger")
   }
 
   public(package) fun create(ctx: &mut TxContext): Encounter {
     let mut id = object::new(ctx);
     storage_migration::add_field<StorageMap<address, MonsterInfo>>(&mut id, b"monster_info", storage_map::new());
-    storage_migration::add_field<StorageDoubleMap<u64, u64, bool>>(&mut id, b"encounter_trigger", storage_double_map::new());
+    storage_migration::add_field<StorageMap<address, bool>>(&mut id, b"trigger", storage_map::new());
     Encounter { id }
   }
 
@@ -87,16 +87,16 @@
     self.borrow_monster_info().values()
   }
 
-  public fun get_encounter_trigger(self: &Encounter, key1: u64, key2: u64): &bool {
-    self.borrow_encounter_trigger().borrow(key1, key2)
+  public fun get_trigger(self: &Encounter, key: address): &bool {
+    self.borrow_trigger().borrow(key)
   }
 
-  public fun get_encounter_trigger_keys(self: &Encounter): (vector<u64>, vector<u64>) {
-    self.borrow_encounter_trigger().keys()
+  public fun get_trigger_keys(self: &Encounter): vector<address> {
+    self.borrow_trigger().keys()
   }
 
-  public fun get_encounter_trigger_values(self: &Encounter): vector<bool> {
-    self.borrow_encounter_trigger().values()
+  public fun get_trigger_values(self: &Encounter): vector<bool> {
+    self.borrow_trigger().values()
   }
 
   // =========================================================================================================

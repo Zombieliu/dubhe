@@ -55,23 +55,31 @@
 
         map.config().set(constantinople::map_config::new(width, height, terrains));
 
-        x.range_do!(height, |x| {
-            y.range_do!(width, |y| {
-                let terrain = terrains[x][y];
-                if (terrain != terrain_type::new_none()) {
-                    let entity_key = constantinople::map_system::position_to_address(x, y);
-                    map.position().insert(entity_key, constantinople::position::new(x, y));
-                    if (terrain == terrain_type::new_tall_grass()) {
-                        entity.obstruction().insert(entity_key, true);
-                        entity.encounterable().insert(entity_key, false);
-                        entity.moveable().insert(entity_key, false);
-                    } else if (terrain == terrain_type::new_boulder()) {
-                        entity.obstruction().insert(entity_key, false);
-                        entity.encounterable().insert(entity_key, true);
-                        entity.moveable().insert(entity_key, false);
-                    }
+        y.range_do!(height, |y| {
+            x.range_do!(width, |x| {
+                let terrain = terrains[y][x];
+                let entity_key = constantinople::map_system::position_to_address(x, y);
+                let position = constantinople::position::new(x, y);
+                map.position().insert(entity_key, position);
+                // std::debug::print(&position);
+                // std::debug::print(&terrain);
+                if (terrain == terrain_type::new_none()) {
+                    entity.obstruction().insert(entity_key, false);
+                    entity.encounterable().insert(entity_key, false);
+                    entity.moveable().insert(entity_key, false);
+                    encounter.trigger().insert(entity_key, false);
+                } else if (terrain == terrain_type::new_boulder()) {
+                    entity.obstruction().insert(entity_key, true);
+                    entity.encounterable().insert(entity_key, false);
+                    entity.moveable().insert(entity_key, false);
+                    encounter.trigger().insert(entity_key, false);
+                } else if (terrain == terrain_type::new_tall_grass()) {
+                    entity.obstruction().insert(entity_key, false);
+                    entity.encounterable().insert(entity_key, false);
+                    entity.moveable().insert(entity_key, false);
+                    encounter.trigger().insert(entity_key, true);
                 }
-            })
+            });
         });
 			};
     // Authorize schemas and public share objects

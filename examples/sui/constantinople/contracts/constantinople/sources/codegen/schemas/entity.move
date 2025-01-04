@@ -72,11 +72,11 @@
     storage_migration::borrow_mut_field(&mut self.id, b"obstruction")
   }
 
-  public fun borrow_owned_by(self: &Entity): &StorageMap<address, address> {
+  public fun borrow_owned_by(self: &Entity): &StorageMap<address, vector<address>> {
     storage_migration::borrow_field(&self.id, b"owned_by")
   }
 
-  public(package) fun owned_by(self: &mut Entity): &mut StorageMap<address, address> {
+  public(package) fun owned_by(self: &mut Entity): &mut StorageMap<address, vector<address>> {
     storage_migration::borrow_mut_field(&mut self.id, b"owned_by")
   }
 
@@ -101,7 +101,7 @@
     storage_migration::add_field<StorageMap<address, bool>>(&mut id, b"player", storage_map::new());
     storage_migration::add_field<StorageMap<address, MonsterType>>(&mut id, b"monster", storage_map::new());
     storage_migration::add_field<StorageMap<address, bool>>(&mut id, b"obstruction", storage_map::new());
-    storage_migration::add_field<StorageMap<address, address>>(&mut id, b"owned_by", storage_map::new());
+    storage_migration::add_field<StorageMap<address, vector<address>>>(&mut id, b"owned_by", storage_map::new());
     storage_migration::add_field<StorageMap<address, bool>>(&mut id, b"encounterable", storage_map::new());
     storage_migration::add_field<StorageMap<address, bool>>(&mut id, b"moveable", storage_map::new());
     Entity { id }
@@ -147,7 +147,7 @@
     self.borrow_obstruction().values()
   }
 
-  public fun get_owned_by(self: &Entity, key: address): &address {
+  public fun get_owned_by(self: &Entity, key: address): &vector<address> {
     self.borrow_owned_by().borrow(key)
   }
 
@@ -155,7 +155,7 @@
     self.borrow_owned_by().keys()
   }
 
-  public fun get_owned_by_values(self: &Entity): vector<address> {
+  public fun get_owned_by_values(self: &Entity): vector<vector<address>> {
     self.borrow_owned_by().values()
   }
 

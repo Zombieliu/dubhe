@@ -6,9 +6,8 @@ module constantinople::encounter_system {
     use sui::random::Random;
     use sui::random;
     use constantinople::entity_schema::Entity;
-    use constantinople::map_schema::Map;
 
-    public fun throw_ball(map: &mut Map, entity: &mut Entity, encounter: &mut Encounter , random: &Random, ctx: &mut TxContext) {
+    public fun throw_ball(entity: &mut Entity, encounter: &mut Encounter , random: &Random, ctx: &mut TxContext) {
         let player = ctx.sender();
 
         not_in_encounter_error::require(encounter.monster_info().contains_key(player));
@@ -16,12 +15,14 @@ module constantinople::encounter_system {
         let (monster, catch_attempts) = encounter.monster_info().get(player).get();
 
         let mut generator = random::new_generator(random, ctx);
-        let rand = random::generate_u256(&mut generator);
-
+        let rand = random::generate_u128(&mut generator);
+        // std::debug::print(&rand);
         if (rand % 2 == 0) {
             // 50% chance to catch monster
             monster_catch_attempt_event::emit(player, monster, monster_catch_result::new_caught());
-            entity.owned_by().set(monster, player);
+            let mut monsters = entity.owned_by().get(player);
+            monsters.push_back(monster);
+            entity.owned_by().set(player, monsters);
             encounter.monster_info().remove(player);
         } else if (catch_attempts >= 2) {
             // Missed 2 times, monster escapes

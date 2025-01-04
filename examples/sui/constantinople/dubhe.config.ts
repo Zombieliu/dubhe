@@ -31,7 +31,7 @@ export const dubheConfig = {
 			player: 'StorageMap<address, bool>',
 			monster: 'StorageMap<address, MonsterType>',
 			obstruction: 'StorageMap<address, bool>',
-			owned_by: 'StorageMap<address, address>',
+			owned_by: 'StorageMap<address, vector<address>>',
 			encounterable: 'StorageMap<address, bool>',
 			moveable: 'StorageMap<address, bool>',
 		},
@@ -41,7 +41,7 @@ export const dubheConfig = {
 		},
 		encounter : {
 			monster_info: 'StorageMap<address, MonsterInfo>',
-			encounter_trigger: 'StorageDoubleMap<u64, u64, bool>',
+			trigger: 'StorageMap<address, bool>',
 		},
 	},
 } as DubheConfig;
