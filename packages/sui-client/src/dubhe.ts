@@ -584,6 +584,73 @@ export class Dubhe {
         let baseType = res[1];
         const value = Uint8Array.from(baseValue);
 
+        const storageValueMatch = baseType.match(
+          /^.*::storage_value::StorageValue<(.+)>$/
+        );
+        if (storageValueMatch) {
+          const innerType = storageValueMatch[1];
+          if (this.#object[innerType]) {
+            const storageValueBcs = bcs.struct('StorageValue', {
+              contents: bcs.vector(
+                bcs.struct('Entry', {
+                  value: this.#object[innerType],
+                })
+              ),
+            });
+            returnValues.push(storageValueBcs.parse(value));
+            continue;
+          }
+        }
+
+        const storageMapMatch = baseType.match(
+          /^.*::storage_map::StorageMap<(.+)>$/
+        );
+        if (storageMapMatch) {
+          const innerType = storageMapMatch[1];
+          const [keyType, valueType] = innerType
+            .split(',')
+            .map((type) => type.trim());
+          if (this.#object[keyType] && this.#object[valueType]) {
+            const storageMapBcs = bcs.struct('StorageMap', {
+              contents: bcs.vector(
+                bcs.struct('Entry', {
+                  key: this.#object[keyType],
+                  value: this.#object[valueType],
+                })
+              ),
+            });
+            returnValues.push(storageMapBcs.parse(value));
+            continue;
+          }
+        }
+
+        const storageDoubleMapMatch = baseType.match(
+          /^.*::storage_double_map::StorageDoubleMap<(.+)>$/
+        );
+        if (storageDoubleMapMatch) {
+          const innerType = storageDoubleMapMatch[1];
+          const [key1, key2, valueType] = innerType
+            .split(',')
+            .map((type) => type.trim());
+          if (
+            this.#object[key1] &&
+            this.#object[key2] &&
+            this.#object[valueType]
+          ) {
+            const storageDoubleMapBcs = bcs.struct('StorageDoubleMap', {
+              contents: bcs.vector(
+                bcs.struct('Entry', {
+                  key1: this.#object[key1],
+                  key2: this.#object[key2],
+                  value: this.#object[valueType],
+                })
+              ),
+            });
+            returnValues.push(storageDoubleMapBcs.parse(value));
+            continue;
+          }
+        }
+
         if (this.#object[baseType]) {
           returnValues.push(this.#object[baseType].parse(value));
           continue;
@@ -627,6 +694,113 @@ export class Dubhe {
       return returnValues;
     } else {
       throw new ContractDataParsingError(dryResult);
+    }
+  }
+
+  async state({
+    schema,
+    struct,
+    objectId,
+    storageType,
+    params,
+  }: {
+    schema: string;
+    struct: string;
+    objectId: string;
+    storageType: string; // 'StorageValue<V>' | 'StorageMap<K, V>' | 'StorageDoubleMap<K1, K2, V>'
+    params: any[];
+  }) {
+    const tx = new Transaction();
+    const moduleName = `${schema}_schema`;
+    const functionName = `get_${struct}`;
+    const schemaObject = tx.object(objectId);
+    // Parse storage type
+    const storageValueMatch = storageType.match(/^StorageValue<(.+)>$/);
+    const storageMapMatch = storageType.match(/^StorageMap<(.+),\s*(.+)>$/);
+    const storageDoubleMapMatch = storageType.match(
+      /^StorageDoubleMap<(.+),\s*(.+),\s*(.+)>$/
+    );
+
+    let processedParams: (TransactionArgument | SerializedBcs<any>)[] = [
+      schemaObject,
+    ];
+
+    if (storageValueMatch) {
+      // StorageValue only needs the object ID
+      if (params.length > 0) {
+        console.warn(
+          'StorageValue does not require additional parameters. Extra parameters will be ignored.'
+        );
+      }
+    } else if (storageMapMatch) {
+      // StorageMap needs one key
+      if (params.length !== 1) {
+        throw new Error('StorageMap requires exactly one key parameter');
+      }
+      const keyType = storageMapMatch[1].trim();
+      processedParams.push(this.#processKeyParameter(tx, keyType, params[0]));
+    } else if (storageDoubleMapMatch) {
+      // StorageDoubleMap needs two keys
+      if (params.length !== 2) {
+        throw new Error('StorageDoubleMap requires exactly two key parameters');
+      }
+      const key1Type = storageDoubleMapMatch[1].trim();
+      const key2Type = storageDoubleMapMatch[2].trim();
+      processedParams.push(this.#processKeyParameter(tx, key1Type, params[0]));
+      processedParams.push(this.#processKeyParameter(tx, key2Type, params[1]));
+    } else {
+      throw new Error(
+        `Invalid storage type: ${storageType}. Must be StorageValue<V>, StorageMap<K,V>, or StorageDoubleMap<K1,K2,V>`
+      );
+    }
+    const queryResponse = (await this.query[moduleName][functionName]({
+      tx,
+      params: processedParams,
+    })) as DevInspectResults;
+    return this.view(queryResponse);
+  }
+
+  #processKeyParameter(tx: Transaction, keyType: string, value: any) {
+    // Handle basic types
+    switch (keyType.toLowerCase()) {
+      case 'u8':
+        return tx.pure.u8(value);
+      case 'u16':
+        return tx.pure.u16(value);
+      case 'u32':
+        return tx.pure.u32(value);
+      case 'u64':
+        return tx.pure.u64(value);
+      case 'u128':
+        return tx.pure.u128(value);
+      case 'u256':
+        return tx.pure.u256(value);
+      case 'bool':
+        return tx.pure.bool(value);
+      case 'address':
+        return tx.pure.address(value);
+      default:
+        // Check if it's an object type
+        if (keyType.includes('::')) {
+          // Assuming it's an object ID if the type contains '::'
+          return tx.object(value);
+        }
+
+        // If we reach here, the key type is not supported
+        console.log(
+          '\n\x1b[41m\x1b[37m ERROR \x1b[0m \x1b[31mUnsupported Key Type\x1b[0m'
+        );
+        console.log('\x1b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m');
+        console.log(`\x1b[95m•\x1b[0m Type: \x1b[33m"${keyType}"\x1b[0m`);
+        console.log('\x1b[95m•\x1b[0m Supported Types:\x1b[0m');
+        console.log('  \x1b[36m◆\x1b[0m u8, u16, u32, u64, u128, u256');
+        console.log('  \x1b[36m◆\x1b[0m bool');
+        console.log('  \x1b[36m◆\x1b[0m address');
+        console.log(
+          '  \x1b[36m◆\x1b[0m object (format: package::module::type)'
+        );
+        console.log('\x1b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m\n');
+        throw new Error(`Unsupported key type: ${keyType}`);
     }
   }
 

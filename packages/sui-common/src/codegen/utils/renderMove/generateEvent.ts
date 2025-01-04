@@ -1,4 +1,4 @@
-import { BaseType, SchemaType } from '../../types';
+import {BaseType, EventData, SchemaData, SchemaType} from '../../types';
 import { formatAndWriteMove } from '../formatAndWrite';
 import {
 	getStructAttrsWithType,
@@ -25,50 +25,64 @@ function convertToSnakeCase(input: string): string {
 		.replace(/^_/, '');
 }
 
+function generateImport(
+	projectName: string,
+	data: Record<string, SchemaData> | null,
+) {
+	if (data) {
+		const names = Object.keys(data);
+		return names
+			.map(name => {
+				return `use ${projectName}::${convertToSnakeCase(
+					name,
+				)}::${name};`;
+			})
+			.join('\n');
+	}
+
+}
+
 export async function generateSchemaEvent(
 	projectName: string,
-	schemas: Record<string, SchemaType>,
+	data: Record<string, SchemaData> | null,
+	events: Record<string, EventData>,
 	path: string
 ) {
 	console.log('\n📦 Starting Schema Event Generation...');
-	for (const schemaName in schemas) {
-		const schema = schemas[schemaName];
-		if (schema.events) {
-			console.log(`  ├─ Processing schema: ${schemaName}`);
-			for (const item of schema.events) {
+	for (const key of Object.keys(events)) {
+				const name = key;
+				const fields = events[key];
 				console.log(
-					`     └─ Generating ${item.name} ${
-						Array.isArray(item.fields) ? '(enum)' : '(struct)'
-					}`
+					`     └─ Generating ${name} event: ${fields}`
 				);
 
-				let	code = `module ${projectName}::${schemaName}_event_${convertToSnakeCase(item.name)} {
+				let	code = `module ${projectName}::${convertToSnakeCase(name)}_event {
 						use sui::event;
 						use std::ascii::String;
-                        public struct ${item.name}Event has copy, drop {
-                                ${getStructAttrsWithType(item.fields as Record<string, string>)}
+						${generateImport(projectName, data)}
+
+                        public struct ${name}Event has copy, drop {
+                                ${getStructAttrsWithType(fields as Record<string, string>)}
                         }
-                        
-                        public fun new(${getStructAttrsWithType(item.fields as Record<string, string>)}): ${item.name}Event {
-                               ${item.name}Event {
-                                   ${getStructAttrs(item.fields as Record<string, string>)}
+
+                        public fun new(${getStructAttrsWithType(fields as Record<string, string>)}): ${name}Event {
+                               ${name}Event {
+                                   ${getStructAttrs(fields as Record<string, string>)}
                                }
                         }
-                        
-                        public fun emit(${getStructAttrsWithType(item.fields as Record<string, string>)}) {
-                               event::emit(${item.name}Event {
-                                   ${getStructAttrs(item.fields as Record<string, string>)}
+
+                        public fun emit(${getStructAttrsWithType(fields as Record<string, string>)}) {
+                               event::emit(${name}Event {
+                                   ${getStructAttrs(fields as Record<string, string>)}
                                });
                         }`;
 				await formatAndWriteMove(
 					code,
-					`${path}/contracts/${projectName}/sources/codegen/events/${schemaName}_event_${convertToSnakeCase(
-						item.name
-					)}.move`,
+					`${path}/contracts/${projectName}/sources/codegen/events/${convertToSnakeCase(
+						name
+					)}_event.move`,
 					'formatAndWriteMove'
 				);
 			}
-		}
-	}
 	console.log('✅ Schema Event Generation Complete\n');
 }
