@@ -1,6 +1,7 @@
 #[test_only]
 module constantinople::map_test {
     use std::debug;
+    use constantinople::position;
     use sui::random::Random;
     use sui::random;
     use sui::test_scenario;
@@ -8,7 +9,7 @@ module constantinople::map_test {
     use constantinople::map_system;
     use constantinople::entity_schema::Entity;
     use constantinople::map_schema::Map;
-    use constantinople::map_direction;
+    use constantinople::direction;
     use constantinople::encounter_schema::Encounter;
     use constantinople::init_test;
     use sui::bcs;
@@ -56,9 +57,22 @@ module constantinople::map_test {
             &mut entity,
             &mut encounter,
             &mut random,
-            map_direction::new_east(),
+            direction::new_east(),
             ctx
         );
+
+        assert!(map.position().get(ctx.sender()) == position::new(1, 0));
+
+        map_system::move_position(
+            &mut map,
+            &mut entity,
+            &mut encounter,
+            &mut random,
+            direction::new_south(),
+            ctx
+        );
+
+        assert!(map.position().get(ctx.sender()) == position::new(1, 1));
 
         test_scenario::return_shared(random);
         test_scenario::return_shared(encounter);

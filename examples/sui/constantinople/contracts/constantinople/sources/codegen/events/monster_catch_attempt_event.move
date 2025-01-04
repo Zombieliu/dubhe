@@ -10,9 +10,19 @@
 
   use std::ascii::String;
 
-  use constantinople::encounter_monster_catch_result::MonsterCatchResult;
+  use constantinople::monster_type::MonsterType;
 
-  use constantinople::encounter_monster_info::MonsterInfo;
+  use constantinople::direction::Direction;
+
+  use constantinople::terrain_type::TerrainType;
+
+  use constantinople::monster_catch_result::MonsterCatchResult;
+
+  use constantinople::map_config::MapConfig;
+
+  use constantinople::position::Position;
+
+  use constantinople::monster_info::MonsterInfo;
 
   public struct MonsterCatchAttemptEvent has copy, drop {
     player: address,

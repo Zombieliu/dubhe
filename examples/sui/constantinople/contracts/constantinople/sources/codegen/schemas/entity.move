@@ -30,7 +30,19 @@
 
   use sui::balance::Balance;
 
-  use constantinople::entity_monster_type::MonsterType;
+  use constantinople::monster_type::MonsterType;
+
+  use constantinople::direction::Direction;
+
+  use constantinople::terrain_type::TerrainType;
+
+  use constantinople::monster_catch_result::MonsterCatchResult;
+
+  use constantinople::map_config::MapConfig;
+
+  use constantinople::position::Position;
+
+  use constantinople::monster_info::MonsterInfo;
 
   public struct Entity has key, store {
     id: UID,

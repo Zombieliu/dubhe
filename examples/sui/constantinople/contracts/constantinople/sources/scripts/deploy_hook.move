@@ -11,7 +11,7 @@
   use constantinople::map_schema::Map;
 
   use constantinople::encounter_schema::Encounter;
-    use constantinople::map_terrain_type;
+    use constantinople::terrain_type;
 
   public entry fun run(clock: &Clock, ctx: &mut TxContext) {
     // Create a dapp.
@@ -22,9 +22,9 @@
     let mut encounter = constantinople::encounter_schema::create(ctx);
     // Logic that needs to be automated once the contract is deployed
     {
-			let  o = map_terrain_type::new_none();
-            let  t = map_terrain_type::new_tall_grass();
-            let  b = map_terrain_type::new_boulder();
+			let  o = terrain_type::new_none();
+            let  t = terrain_type::new_tall_grass();
+            let  b = terrain_type::new_boulder();
 			let terrains = vector[
              vector [o, o, o, o, o, o, t, o, o, o, o, o, o, o, o, o, o, o, o, o],
              vector [o, o, t, o, o, o, o, o, t, o, o, o, o, b, o, o, o, o, o, o],
@@ -58,14 +58,14 @@
         x.range_do!(height, |x| {
             y.range_do!(width, |y| {
                 let terrain = terrains[x][y];
-                if (terrain != map_terrain_type::new_none()) {
+                if (terrain != terrain_type::new_none()) {
                     let entity_key = constantinople::map_system::position_to_address(x, y);
-                    map.position().insert(entity_key, constantinople::map_position::new(x, y));
-                    if (terrain == map_terrain_type::new_tall_grass()) {
+                    map.position().insert(entity_key, constantinople::position::new(x, y));
+                    if (terrain == terrain_type::new_tall_grass()) {
                         entity.obstruction().insert(entity_key, true);
                         entity.encounterable().insert(entity_key, false);
                         entity.moveable().insert(entity_key, false);
-                    } else if (terrain == map_terrain_type::new_boulder()) {
+                    } else if (terrain == terrain_type::new_boulder()) {
                         entity.obstruction().insert(entity_key, false);
                         entity.encounterable().insert(entity_key, true);
                         entity.moveable().insert(entity_key, false);

@@ -1,6 +1,6 @@
 module constantinople::encounter_system {
     use constantinople::encounter_schema::Encounter;
-    use constantinople::encounter_monster_catch_result;
+    use constantinople::monster_catch_result;
     use constantinople::monster_catch_attempt_event;
     use constantinople::not_in_encounter_error;
     use sui::random::Random;
@@ -20,17 +20,17 @@ module constantinople::encounter_system {
 
         if (rand % 2 == 0) {
             // 50% chance to catch monster
-            monster_catch_attempt_event::emit(player, monster, encounter_monster_catch_result::new_caught());
+            monster_catch_attempt_event::emit(player, monster, monster_catch_result::new_caught());
             entity.owned_by().set(monster, player);
             encounter.monster_info().remove(player);
         } else if (catch_attempts >= 2) {
             // Missed 2 times, monster escapes
-            monster_catch_attempt_event::emit(player, monster, encounter_monster_catch_result::new_fled());
+            monster_catch_attempt_event::emit(player, monster, monster_catch_result::new_fled());
             entity.monster().remove(monster);
             encounter.monster_info().remove(player);
         } else {
             // Throw missed!
-            monster_catch_attempt_event::emit(player, monster, encounter_monster_catch_result::new_missed());
+            monster_catch_attempt_event::emit(player, monster, monster_catch_result::new_missed());
             encounter.monster_info().mutate!(player, |encounter| {
                 encounter.set_catch_attempts(catch_attempts + 1);
             });

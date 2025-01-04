@@ -1,21 +1,21 @@
 module constantinople::map_system {
     use std::debug;
     use sui::bcs;
-    use constantinople::encounter_monster_info;
+    use constantinople::monster_info;
     use constantinople::encounter_schema::Encounter;
     use sui::address;
     use sui::random::{Random, RandomGenerator};
     use sui::random;
-    use constantinople::map_direction;
-    use constantinople::map_direction::Direction;
+    use constantinople::direction;
+    use constantinople::direction::Direction;
     use constantinople::not_registered_error;
     use constantinople::cannot_move_error;
     use constantinople::space_obstructed_error;
     use constantinople::entity_schema::Entity;
     use constantinople::already_registered_error;
     use constantinople::map_schema::Map;
-    use constantinople::map_position;
-    use constantinople::entity_monster_type;
+    use constantinople::position;
+    use constantinople::monster_type;
 
     public fun register(map: &mut Map, entity: &mut Entity,  x: u64, y: u64, ctx: &mut TxContext) {
         let player = ctx.sender();
@@ -32,24 +32,24 @@ module constantinople::map_system {
         entity.player().set(player, true);
         entity.moveable().set(player, true);
         entity.encounterable().set(player, true);
-        map.position().set(player, map_position::new(x, y));
+        map.position().set(player, position::new(x, y));
     }
 
 
     fun start_encounter(entity: &mut Entity,  encounter: &mut Encounter, generator: &mut RandomGenerator, player: address) {
         let monster = random::generate_u256(generator);
-        let mut monster_type = entity_monster_type::new_none();
+        let mut monster_type = monster_type::new_none();
         if (monster % 4 == 1) {
-            monster_type = entity_monster_type::new_eagle();
+            monster_type = monster_type::new_eagle();
         } else if (monster % 4 == 2) {
-            monster_type = entity_monster_type::new_rat();
+            monster_type = monster_type::new_rat();
         } else if (monster % 4 == 3) {
-            monster_type = entity_monster_type::new_caterpillar();
+            monster_type = monster_type::new_caterpillar();
         };
 
         let monster = address::from_u256(monster);
         entity.monster().set(monster, monster_type);
-        let monster_info = encounter_monster_info::new(monster, 0);
+        let monster_info = monster_info::new(monster, 0);
         encounter.monster_info().set(player, monster_info);
     }
 
@@ -61,13 +61,13 @@ module constantinople::map_system {
         cannot_move_error::require(!encounter.monster_info().contains_key(player));
 
         let (mut x, mut y) = map.position().get(player).get();
-        if (direction == map_direction::new_north()) {
+        if (direction == direction::new_north()) {
             y = y - 1;
-        } else if (direction == map_direction::new_east()) {
+        } else if (direction == direction::new_east()) {
             x = x + 1;
-        } else if (direction == map_direction::new_south()) {
+        } else if (direction == direction::new_south()) {
             y = y + 1;
-        } else if (direction == map_direction::new_west()) {
+        } else if (direction == direction::new_west()) {
             x = x - 1;
         };
 
@@ -81,10 +81,10 @@ module constantinople::map_system {
             space_obstructed_error::require(!entity.obstruction().get(space_addr));
         };
 
-        map.position().set(player, map_position::new(x, y));
+        map.position().set(player, position::new(x, y));
 
         let mut generator = random::new_generator(random, ctx);
-        let rand = random::generate_u256(&mut generator);
+        let rand = random::generate_u128(&mut generator);
         debug::print(&rand);
         if (rand % 5 == 0) {
             start_encounter(entity, encounter, &mut generator, player);
